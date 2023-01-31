@@ -1,0 +1,12 @@
+@media (max-width: 576px) {
+    .stepper {
+      justify-content: flex-start;
+      overflow: auto;
+    }
+    .truncate{
+      white-space: break-spaces;
+    }
+    .step{
+        padding: 0 10px;
+    }
+  }
