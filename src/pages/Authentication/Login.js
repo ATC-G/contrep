@@ -147,7 +147,7 @@ function Login(){
                 </Card>
                 <div className="mt-5 text-center">
                   <p>
-                    © {new Date().getFullYear()} Contrep. Creado con {" "}
+                    © {new Date().getFullYear()} Cotrep. Creado con {" "}
                     <i className="mdi mdi-heart text-danger" /> por ATC-G
                   </p>
                 </div>
