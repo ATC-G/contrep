@@ -74,8 +74,8 @@ function Documento(){
           <div className="page-content">
             <Container fluid>
               <Breadcrumbs
-                title={'Alumnos'}
-                breadcrumbItem={"Alumnos"}
+                title={'Documento'}
+                breadcrumbItem={"Documento"}
               />
 
               <Row>

@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { Card, CardBody, Col, Container, Form, Label, Row, Input, FormFeedback, Alert } from "reactstrap";
 
 import profile from "../../assets/images/profile-img2.png"
-import logo from "../../assets/images/logo.png";
+import logo from "../../assets/images/logo-cotrep.png";
 import { postJwtLogin } from "../../helpers/auth";
 import useHandleErrors from "../../hooks/useHandleErrors";
 
@@ -15,7 +15,7 @@ function Login(){
         enableReinitialize: true,
     
         initialValues: {
-          username: "admin@admin.com" || '',
+          username: "demo@demo.com" || '',
           password: '123456',
         },
         validationSchema: Yup.object({
@@ -51,11 +51,12 @@ function Login(){
                     <Row>
                       <Col lg="12">
                         <div className="position-relative">
-                          <div className="position-absolute mt-2 ms-2">
-                            <h4 className="text-white">Contrep system</h4>
-                            <h6 className="text-white">Log in to access</h6>
+                          <div className="position-absolute mt-2 ms-2 zIndex-1">
+                            <h3 className="text-white">Cotrep</h3>
+                            <h6 className="text-white d-none d-md-block">Sistema de control y administracion</h6>
                           </div>
                         </div>
+                        <div className="overlay"></div>
                         <img src={profile} alt="" className="img-fluid" />
                       </Col>
                     </Row>                    
@@ -96,7 +97,7 @@ function Login(){
                         </Alert> }              
   
                         <div className="mb-3">
-                          <Label className="form-label">Username</Label>
+                          <Label className="form-label">Correo electrónico</Label>
                           <Input
                             name="username"
                             className="form-control"
@@ -115,7 +116,7 @@ function Login(){
                         </div>
 
                         <div className="mb-3">
-                          <Label className="form-label">Password</Label>
+                          <Label className="form-label">Contraseña</Label>
                           <Input
                             name="password"
                             value={validation.values.password || ""}
@@ -137,7 +138,7 @@ function Login(){
                             className="btn btn-primary btn-block"
                             type="submit"
                           >
-                            Log In
+                            Ingresar
                           </button>
                         </div>
                       </Form>
@@ -146,8 +147,8 @@ function Login(){
                 </Card>
                 <div className="mt-5 text-center">
                   <p>
-                    © {new Date().getFullYear()} Contrep system. Created with {" "}
-                    <i className="mdi mdi-heart text-danger" /> by ATC-G
+                    © {new Date().getFullYear()} Contrep. Creado con {" "}
+                    <i className="mdi mdi-heart text-danger" /> por ATC-G
                   </p>
                 </div>
               </Col>

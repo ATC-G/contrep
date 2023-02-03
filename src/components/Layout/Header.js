@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import logo from "../../assets/images/logo.svg";
-import logoLightSvg from "../../assets/images/logo-light.svg";
+import logo from "../../assets/images/logo-cotrep.png";
+import logoLightSvg from "../../assets/images/logo-cotrep.png";
 import ProfileMenu from "./ProfileMenu";
 
 function Header(){
@@ -77,7 +77,7 @@ function Header(){
                 </button>
               </div>
               <div className="d-flex">
-                <div className="dropdown d-inline-block d-lg-none ms-2">
+                {/* <div className="dropdown d-inline-block d-lg-none ms-2">
                   <button
                     onClick={() => {
                       setsearch(!search);
@@ -112,13 +112,13 @@ function Header(){
                           </div>
                         </div>
                       </div>
-                    </form>
+                    </form> 
                   </div>
-                </div>
+                </div> */}
     
                 {/* <LanguageDropdown /> */}
     
-                <div className="dropdown d-none d-lg-inline-block ms-1">
+                <div className="dropdown d-lg-inline-block ms-1">
                   <button
                     type="button"
                     onClick={() => {
