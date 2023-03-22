@@ -1,41 +1,25 @@
 //AUTH
-export const POST_LOGIN = "/auth/login"
+export const POST_LOGIN = "/token"
 export const GET_USER_LOGUED = "/auth/loguedUser";
 
-//CASE
-export const CASE = "/case"
-export const CASE_SEARCH = "/case/search"
-export const CASE_AND_STATUS = "/case/totalbystatus"
-export const CASE_STORE_STAGE = "/case/storestage"
-export const CASE_UPLOAD_FILE = "/case/uploadfile"
-export const CASE_BY_NUMERO = "/case/checknumero"
+//ALUMNOS
+export const ALUMNOS_PAGINATE = "/query/alumnos"
+export const ALUMNOS_SAVE = "/command/alumnos"
 
-//contact numer
-export const CONTACT_NUMBERS = "/contactnumbers"
+//Razon Social
+export const RAZON_SOCIAL_QUERY = '/query/razonessociales/searchby'
+export const RAZON_SOCIAL_PERSIST = '/command/razonessociales'
 
-//contact numer
-export const HOUSE_HOLDER_MEMBER = "/householdermember"
+//Colegios
+export const COLEGIOS_QUERY = "/query/colegios"
+export const COLEGIOS_PERSIST = "/command/colegios"
 
-//stages
-export const STAGES = '/stages'
+//Ciclos
+export const CICLOS_BY_COLEGIOS = "/query/ciclos/getbycolegio"
+export const CICLOS_PERSIST = "/command/ciclos"
 
-//stagesNotes
-export const STAGES_NOTE = "/stagesnotes"
 
-//casestages
-export const CASE_STAGE = "/casestages"
 
-//relationship
-export const RELATIONSHIP = '/relationship'
-
-//configuration header report
-export const HEADER_REPORT = '/reportetopconfiguration'
 
 //usuarios
 export const USER = '/user'
-
-//role
-export const ROLE = '/role'
-
-//survey
-export const SURVEY = '/survey'

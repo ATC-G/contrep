@@ -6,37 +6,36 @@ import { Card, CardBody, Col, Container, Form, Label, Row, Input, FormFeedback, 
 import profile from "../../assets/images/profile-img2.png"
 import logo from "../../assets/images/logo-cotrep.png";
 import { postJwtLogin } from "../../helpers/auth";
-import useHandleErrors from "../../hooks/useHandleErrors";
+import { useState } from "react";
+import { ERROR_SERVER } from "../../constants/messages";
+import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 
 
 function Login(){
-    const [error, errors, checkError] = useHandleErrors()
+  const [error, setError] = useState('')
     const validation = useFormik({
         enableReinitialize: true,
     
         initialValues: {
-          username: "demo@demo.com" || '',
-          password: '123456',
+          userName: "santiago.figueroa94@gmail.com" || '',
+          password: 'P4ssw0rd12145',
         },
         validationSchema: Yup.object({
-          username: Yup.string().required("Username required"),
-          password: Yup.string().required("Password required"),
+          userName: Yup.string().required("Usuario requerido"),
+          password: Yup.string().required("Contraseña requerido"),
         }),
         onSubmit: async (values) => {
           try{
-            //const response = await postJwtLogin(values)
-            if(1===1){ //response.success
-              //localStorage.setItem("contrep_auth", JSON.stringify(response));
-              localStorage.setItem("contrep_auth", JSON.stringify({"success":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJuYW1lIjoiQWRtaW4iLCJhY3RpdmUiOnRydWUsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwicGFzc3dvcmQiOiJVMkZzZEdWa1gxK203NHVqWUt4Tm5VenlHWnQrQmhEL0ZnbENxVDVJUUVzPSIsInVzZXJuYW1lIjoiYWRtaW4iLCJkZWxldGUiOmZhbHNlLCJjcmVhdGVkQXQiOiIyMDIyLTEyLTAxVDAwOjM4OjM2LjAwMFoiLCJ1cGRhdGVkQXQiOiIyMDIyLTEyLTAxVDAwOjM4OjM2LjAwMFoiLCJyb2xlX2lkIjoxLCJSb2xlIjp7ImlkIjoxLCJuYW1lIjoiQURNSU5JU1RSQURPUiIsImRlbGV0ZSI6ZmFsc2UsImNyZWF0ZWRBdCI6IjIwMjItMTItMDFUMDA6Mzg6MTIuMDAwWiIsInVwZGF0ZWRBdCI6IjIwMjItMTItMDFUMDA6Mzg6MTIuMDAwWiJ9fSwiaWF0IjoxNjczOTg0MjYzLCJleHAiOjE2NzM5OTUwNjN9.650ylVFXwsMPVpcNbx6AcTMZ2kFGYG_SYlVAs0xmTTE"}));
+            const response = await postJwtLogin(values)
+            if(response){ //response.success
+              localStorage.setItem("contrep_auth", JSON.stringify({"token":response}));
               window.location.href="/alumnos"
               //history.push("/dashboard");
             }            
           }catch(error){
-            console.log('error')
-            console.log(error)
-            if(error.response){
-              checkError(error.response.data)
-            }
+            let message  = ERROR_SERVER;
+            message = extractMeaningfulMessage(error, message)
+            setError(message)
           }
         }
       });
@@ -86,15 +85,7 @@ function Login(){
                         }}
                       >         
 
-                        {error && <Alert color="danger">{error.msg}</Alert>}
-                        {errors.length > 0 && 
-                        <Alert color="danger">
-                          {
-                            errors.map((item, index)=>(
-                              <div key={index}>{item.param} - {item.msg}</div>
-                            ))
-                          }
-                        </Alert> }              
+                        {error && <Alert color="danger">{error}</Alert>}              
   
                         <div className="mb-3">
                           <Label className="form-label">Correo electrónico</Label>
@@ -134,12 +125,20 @@ function Login(){
                         </div>
   
                         <div className="mt-3 d-grid">
-                          <button
-                            className="btn btn-primary btn-block"
-                            type="submit"
-                          >
-                            Ingresar
-                          </button>
+                          {
+                            validation.isSubmitting ?
+                            <span
+                              className="btn btn-primary btn-block disabled"
+                            >
+                              <i className="bx bx-loader bx-spin font-size-16 align-middle me-2"></i>
+                            </span> : 
+                            <button
+                              className="btn btn-primary btn-block"
+                              type="submit"
+                            >
+                              Ingresar
+                            </button>
+                          }                          
                         </div>
                       </Form>
                     </div>

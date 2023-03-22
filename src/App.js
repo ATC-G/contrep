@@ -15,19 +15,21 @@ function App() {
 
   useMemo(() => {
     if(userLogued){
-      switch(userLogued.Role.name){
-        case "ADMINISTRADOR":
-          setAuthRoutes([...authProtectedRoutes, ...agentRoutes, ...managerRoutes, ...adminRoutes]);
-          break;
-        case 'MANAGER':
-          setAuthRoutes([...authProtectedRoutes, ...agentRoutes, ...managerRoutes]);
-          break;
-        case 'AGENTE':
-          setAuthRoutes([...authProtectedRoutes, ...agentRoutes]);
-          break;
-        default:
-          break;
-      }
+      //temporral
+      setAuthRoutes([...authProtectedRoutes, ...agentRoutes, ...managerRoutes, ...adminRoutes]);
+      // switch(userLogued.Role.name){
+      //   case "ADMINISTRADOR":
+      //     setAuthRoutes([...authProtectedRoutes, ...agentRoutes, ...managerRoutes, ...adminRoutes]);
+      //     break;
+      //   case 'MANAGER':
+      //     setAuthRoutes([...authProtectedRoutes, ...agentRoutes, ...managerRoutes]);
+      //     break;
+      //   case 'AGENTE':
+      //     setAuthRoutes([...authProtectedRoutes, ...agentRoutes]);
+      //     break;
+      //   default:
+      //     break;
+      // }
     }
   }, [userLogued])
   return (

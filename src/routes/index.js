@@ -66,21 +66,6 @@ const managerRoutes = [
     { path: "/concepto", exact: true, component: Concepto },
     { path: "/colegiatura", exact: true, component: Colegiatura },
     { path: "/pagos", exact: true, component: PasarelaPagos },
- 
-    //  //satges
-    //  { path: "/relationship-list", exact: true, component: RelationshipList },
-    //  { path: "/relationship-add", exact: true, component: RelationshipAdd },
-    //  { path: "/relationship-edit/:id", exact: true, component: RelationshipEdit },
- 
-    //  //header report
-    //  { path: "/topconfiguration-list", exact: true, component: HeaderReportList },
-    //  { path: "/topconfiguration-add", exact: true, component: HeaderReportAdd },
-    //  { path: "/topconfiguration-edit/:id", exact: true, component: HeaderReportEdit },
-
-    //  //header report
-    //  { path: "/survey-list", exact: true, component: SurveyList },
-    //  { path: "/survey-add", exact: true, component: SurveyAdd },
-    //  { path: "/survey-edit/:id", exact: true, component: SurveyEdit },
 ]
 const agentRoutes = [
     //documents

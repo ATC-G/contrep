@@ -8,7 +8,7 @@ export default function useLoguedUser(){
         if(localStorage.getItem("contrep_auth")){
             const obj = JSON.parse(localStorage.getItem("contrep_auth"))
             const decode = jwtDecode(obj.token)
-            setUserLogued(decode.user)
+            setUserLogued(decode.email)
         }
     }, [])
 
