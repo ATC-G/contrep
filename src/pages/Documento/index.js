@@ -1,11 +1,9 @@
 import { useMemo } from "react";
 import { useState } from "react";
 import { withRouter } from "react-router-dom";
-import { Col, Container, Row } from "reactstrap";
-import FormAlumnos from "../../components/Alumnos/FormAlumnos";
+import { Button, Col, Container, InputGroup, Row } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import CardBasic from "../../components/Common/CardBasic";
-import BuscarDocumento from "../../components/Documento/BuscarDocumento";
 import IntegrarAlumnos from "../../components/Documento/IntegrarAlumnos";
 import SimpleLoad from "../../components/Loader/SimpleLoad";
 import SimpleTable from "../../components/Tables/SimpleTable";
@@ -14,6 +12,7 @@ import { testItemsDocumentos } from "../../data/testData";
 function Documento(){  
     const [loading, setLoading] = useState(false)
     const [items, setItems] = useState(testItemsDocumentos);
+    const [searchBy, setSearchBy] = useState('')
 
     const columns = useMemo(
         () => [
@@ -39,11 +38,6 @@ function Documento(){
   
     const cardChildren = (
         <>
-            <Row>
-                <Col xs="12" md="12">
-                    <BuscarDocumento />
-                </Col>
-            </Row>
             <Row className="mt-2">
                 <Col>
                     <IntegrarAlumnos />
@@ -52,21 +46,61 @@ function Documento(){
         </>
     );
 
+    const buscar = () => {
+      let queryCopy = {
+        PageNumber: 0,
+        PageSize: 10
+      }
+      if(searchBy){
+        queryCopy = {
+          ...queryCopy,
+          parameter: searchBy
+        }
+      }
+      //setQuery(queryCopy);    
+    }
+
     const cardHandleList = (
-        loading ?
-        <Row>
-            <Col xs="12" xl="12">
-                <SimpleLoad />
-            </Col>
-        </Row> :
-        <Row>
-            <Col xl="12">                                    
-                <SimpleTable
-                    columns={columns}
-                    data={items} 
+      <>
+        <div className="d-flex justify-content-end">
+            <div className="mb-1">
+              <InputGroup>
+                <input
+                  type="text"  
+                  id="search"
+                  className="form-control" 
+                  placeholder="Buscar documento"
+                  value={searchBy}
+                  onChange={e=>setSearchBy(e.target.value)}
                 />
-            </Col>            
-        </Row>
+                <div
+                  className="input-group-append"
+                  onClick={buscar}
+                >
+                  <Button type="button" color="primary">
+                    <i className="bx bx-search-alt-2" />
+                  </Button>
+                </div>
+              </InputGroup>
+            </div>
+        </div>
+        {
+          loading ?
+          <Row>
+              <Col xs="12" xl="12">
+                  <SimpleLoad />
+              </Col>
+          </Row> :
+          <Row>
+              <Col xl="12">                                    
+                  <SimpleTable
+                      columns={columns}
+                      data={items} 
+                  />
+              </Col>            
+          </Row>
+        }
+      </>
     )
     
     return (
