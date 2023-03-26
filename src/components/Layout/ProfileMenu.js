@@ -4,10 +4,7 @@ import {
     Dropdown,
     DropdownToggle,
     DropdownMenu,
-    DropdownItem,
   } from "reactstrap"
-
-  import user1 from "../../assets/images/users/avatar-1.jpg"
 import useLoguedUser from "../../hooks/useLoguedUser"
 
 function ProfileMenu(){
@@ -31,7 +28,7 @@ function ProfileMenu(){
                 src={user1}
                 alt="Header Avatar"
               /> */}
-              <span className="d-xl-inline-block ms-2 me-1">{userLogued?.username}</span>
+              <span className="d-xl-inline-block ms-2 me-1">{userLogued?.email}</span>
               <i className="mdi mdi-chevron-down d-xl-inline-block"/>
             </DropdownToggle>
             <DropdownMenu className="dropdown-menu-end">

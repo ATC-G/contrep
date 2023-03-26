@@ -121,22 +121,28 @@ function Sidebar(){
                             <span>Documentos</span>
                         </Link>              
                       </li>
-                      <li>
+                      {/* <li>
                         <Link to="/cobranza" className="">
                             <i className="bx bxs-filter-alt"></i>
                             <span>Cobranza</span>
                         </Link>              
-                      </li>
+                      </li> */}
                       <li>
                         <Link to="/cicloescolar" className="">
                             <i className="bx bx-calendar"></i>
                             <span>Ciclo escolar</span>
                         </Link> 
                       </li>
-                      <li> 
+                      {/* <li> 
                         <Link to="/concepto" className="">
                             <i className="bx bx-list-ul"></i>
                             <span>Conceptos</span>
+                        </Link> 
+                      </li> */}
+                      <li> 
+                        <Link to="/colegios" className="">
+                            <i className="bx bxs-school"></i>
+                            <span>Colegios</span>
                         </Link> 
                       </li>
                       {/* <li>

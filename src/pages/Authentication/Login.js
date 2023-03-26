@@ -13,9 +13,7 @@ import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 
 function Login(){
   const [error, setError] = useState('')
-    const validation = useFormik({
-        enableReinitialize: true,
-    
+    const validation = useFormik({    
         initialValues: {
           userName: "santiago.figueroa94@gmail.com" || '',
           password: 'P4ssw0rd12145',
@@ -27,10 +25,9 @@ function Login(){
         onSubmit: async (values) => {
           try{
             const response = await postJwtLogin(values)
-            if(response){ //response.success
+            if(response){ 
               localStorage.setItem("contrep_auth", JSON.stringify({"token":response}));
               window.location.href="/alumnos"
-              //history.push("/dashboard");
             }            
           }catch(error){
             let message  = ERROR_SERVER;
@@ -90,19 +87,17 @@ function Login(){
                         <div className="mb-3">
                           <Label className="form-label">Correo electrónico</Label>
                           <Input
-                            name="username"
+                            name="userName"
                             className="form-control"
                             placeholder="Enter email"
                             type="text"
                             onChange={validation.handleChange}
                             onBlur={validation.handleBlur}
-                            value={validation.values.username || ""}
-                            invalid={
-                              validation.touched.username && validation.errors.username ? true : false
-                            }
+                            value={validation.values.userName || ""}
+                            invalid={validation.errors.userName ? true : false}
                           />
-                          {validation.touched.username && validation.errors.username ? (
-                            <FormFeedback type="invalid">{validation.errors.username}</FormFeedback>
+                          {validation.errors.userName ? (
+                            <FormFeedback type="invalid">{validation.errors.userName}</FormFeedback>
                           ) : null}
                         </div>
 
@@ -115,11 +110,9 @@ function Login(){
                             placeholder="Enter Password"
                             onChange={validation.handleChange}
                             onBlur={validation.handleBlur}
-                            invalid={
-                              validation.touched.password && validation.errors.password ? true : false
-                            }
+                            invalid={validation.errors.password ? true : false}
                           />
-                          {validation.touched.password && validation.errors.password ? (
+                          {validation.errors.password ? (
                             <FormFeedback type="invalid">{validation.errors.password}</FormFeedback>
                           ) : null}
                         </div>

@@ -6,6 +6,7 @@ import Logout from "../pages/Authentication/Logout"
 import CicloEscolar from "../pages/CicloEscolar"
 import Cobranza from "../pages/Cobranza"
 import Colegiatura from "../pages/Colegiatura"
+import Colegios from "../pages/Colegios"
 import Concepto from "../pages/Concepto"
 import Configuracion from "../pages/Configuracion"
 import Dashboard from "../pages/Dashboard"
@@ -66,6 +67,7 @@ const managerRoutes = [
     { path: "/concepto", exact: true, component: Concepto },
     { path: "/colegiatura", exact: true, component: Colegiatura },
     { path: "/pagos", exact: true, component: PasarelaPagos },
+    { path: "/colegios", exact: true, component: Colegios },
 ]
 const agentRoutes = [
     //documents
