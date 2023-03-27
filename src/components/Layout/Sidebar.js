@@ -121,12 +121,12 @@ function Sidebar(){
                             <span>Documentos</span>
                         </Link>              
                       </li>
-                      {/* <li>
+                      <li>
                         <Link to="/cobranza" className="">
                             <i className="bx bxs-filter-alt"></i>
                             <span>Cobranza</span>
                         </Link>              
-                      </li> */}
+                      </li>
                       <li>
                         <Link to="/cicloescolar" className="">
                             <i className="bx bx-calendar"></i>
