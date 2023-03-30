@@ -11,7 +11,7 @@ import { testItemsDocumentos } from "../../data/testData";
 
 function Documento(){  
     const [loading, setLoading] = useState(false)
-    const [items, setItems] = useState(testItemsDocumentos);
+    const [items, setItems] = useState([]);
     const [searchBy, setSearchBy] = useState('')
 
     const columns = useMemo(

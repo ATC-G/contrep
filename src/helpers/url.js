@@ -22,6 +22,9 @@ export const CICLOS_PERSIST = "/command/ciclos"
 export const FAMILIA_QUERY = "/query/familias"
 export const FAMILIA_PERSIST = "/command/familias"
 
+//Referencia
+export const REFERENCIA_PERSIST = "/command/referencias"
+
 
 
 
