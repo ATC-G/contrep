@@ -23,8 +23,13 @@ export default function FormCicloEscolar(){
         fechaInicio:'',
         fechaFin: '',
         fechaPagos:[{
+            id: '',
+            year: '',
+            mes: '',
             fechaLimite: '',
-            interes: ''
+            interes: '',
+            anual: false,
+            repetir: false
         }],
     })
 
@@ -50,6 +55,8 @@ export default function FormCicloEscolar(){
             fechaFin: Yup.string().required(FIELD_REQUIRED),
             fechaPagos: Yup.array().of(
                 Yup.object().shape({
+                    year: Yup.string().required(FIELD_REQUIRED),
+                    mes: Yup.string().required(FIELD_REQUIRED),
                     fechaLimite: Yup.string().required(FIELD_REQUIRED),
                     interes: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(1, CAMPO_MAYOR_CERO).max(100, CAMPO_MENOR_CIEN),
                 })
@@ -216,7 +223,7 @@ export default function FormCicloEscolar(){
                                         <div key={index} className="mb-2">
                                             <Row>
                                                 <Col xs="12" md="3">
-                                                    {index === 0 && <Label className="mb-0">Fecha límite de pago:</Label>}
+                                                    {index === 0 && <Label className="mb-0">Fecha límite de pago</Label>}
                                                     <SimpleDate 
                                                         date={formik.values.fechaPagos[index].fechaLimite}
                                                         setDate={value=>{ 
@@ -232,8 +239,8 @@ export default function FormCicloEscolar(){
                                                         <div className="invalid-tooltip d-block">{formik.errors.fechaPagos[index]?.fechaLimite}</div>
                                                     } 
                                                 </Col>
-                                                <Col xs="12" md="3">
-                                                    {index === 0 && <Label className="mb-0">Interés:</Label>}
+                                                <Col xs="12" md="2">
+                                                    {index === 0 && <Label className="mb-0">Interés</Label>}
                                                     <Field
                                                         className={`form-control`}
                                                         name={`fechaPagos.${index}.interes`} 
@@ -242,7 +249,53 @@ export default function FormCicloEscolar(){
                                                         formik.errors?.fechaPagos?.length > 0 && formik.errors.fechaPagos[index]?.interes &&
                                                         <div className="invalid-tooltip d-block">{formik.errors.fechaPagos[index]?.interes}</div>
                                                     } 
+                                                </Col> 
+                                                <Col xs="12" md="2">
+                                                    {index === 0 && <Label className="mb-0">Año</Label>}
+                                                    <Field
+                                                        className={`form-control`}
+                                                        name={`fechaPagos.${index}.year`} 
+                                                    />
+                                                    {
+                                                        formik.errors?.fechaPagos?.length > 0 && formik.errors.fechaPagos[index]?.year &&
+                                                        <div className="invalid-tooltip d-block">{formik.errors.fechaPagos[index]?.year}</div>
+                                                    } 
                                                 </Col>  
+                                                <Col xs="12" md="2">
+                                                    {index === 0 && <Label className="mb-0">Mes</Label>}
+                                                    <Field
+                                                        className={`form-control`}
+                                                        name={`fechaPagos.${index}.mes`} 
+                                                    />
+                                                    {
+                                                        formik.errors?.fechaPagos?.length > 0 && formik.errors.fechaPagos[index]?.mes &&
+                                                        <div className="invalid-tooltip d-block">{formik.errors.fechaPagos[index]?.mes}</div>
+                                                    } 
+                                                </Col>
+                                                <Col xs="12" md="1">
+                                                    {index === 0 && <Label className="mb-0">Es anual</Label>}
+                                                    <Field
+                                                        className={`d-block mt-1`}
+                                                        name={`fechaPagos.${index}.anual`}
+                                                        type="checkbox" 
+                                                    />
+                                                    {
+                                                        formik.errors?.fechaPagos?.length > 0 && formik.errors.fechaPagos[index]?.anual &&
+                                                        <div className="invalid-tooltip d-block">{formik.errors.fechaPagos[index]?.anual}</div>
+                                                    } 
+                                                </Col>
+                                                <Col xs="12" md="1">
+                                                    {index === 0 && <Label className="mb-0">Es repetitivo</Label>}
+                                                    <Field
+                                                        className={`d-block mt-1`}
+                                                        name={`fechaPagos.${index}.repetir`}
+                                                        type="checkbox" 
+                                                    />
+                                                    {
+                                                        formik.errors?.fechaPagos?.length > 0 && formik.errors.fechaPagos[index]?.repetir &&
+                                                        <div className="invalid-tooltip d-block">{formik.errors.fechaPagos[index]?.repetir}</div>
+                                                    } 
+                                                </Col>
                                                 {index > 0 && 
                                                 <Col xs="12" md="1" className="d-flex align-items-center">
                                                     {index===0 && <Label className="mb-0 opacity-0 d-block">O</Label>}
