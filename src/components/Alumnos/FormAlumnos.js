@@ -1,49 +1,44 @@
 import { useFormik } from "formik";
+import { useState } from "react";
 import { Button, Col, Form, Input, Label, Row } from "reactstrap";
 import * as Yup from "yup";
 import { FIELD_REQUIRED, SELECT_OPTION } from "../../constants/messages";
+import Select from 'react-select';
 
 export default function FormAlumnos(){
+    const [colegioOBj, setColegioObj] = useState(null)
+    const [colegioOpt, setColegioOpt] = useState([])
+    const [familiaOBj, setFamiliaObj] = useState(null)
+    const [familiaOpt, setFamiliaOpt] = useState([])
+    const [razonSocialOBj, setRazonSocialObj] = useState(null)
+    const [razonSocialOpt, setRazonSocialOpt] = useState([])
 
     const formik = useFormik({
         initialValues: {
-            razonSocialCode:'',
-            razonSocial: '',
-            estatus: '',
-            rfc: '',
-            codigoPostal: '',
-            regimen: '',
-            numeroFamilia: '',
-            colegio: '',
             nombre: '',
+            curp: '',
+            colegio: '',
+            familia: '',
+            email: '',
+            telefono: '',
             grado: '',
             mensualidad: '',
-            ciclo: '',
+            beca: '',
             matricula: '',
-            curp: '',
-            correo: '',
-            telefono: '',
-            beca: ''
-            
+            razonesSociales:[],     
         },
         validationSchema: Yup.object({
-            razonSocialCode: Yup.string().required(FIELD_REQUIRED),
-            razonSocial: Yup.string().required(FIELD_REQUIRED),
-            estatus: Yup.string().required(FIELD_REQUIRED),
-            rfc: Yup.string().required(FIELD_REQUIRED),
-            codigoPostal: Yup.string().required(FIELD_REQUIRED),
-            regimen: Yup.string().required(FIELD_REQUIRED),
-            numeroFamilia: Yup.string().required(FIELD_REQUIRED),
+            nombre: Yup.string().required(FIELD_REQUIRED), 
+            curp: Yup.string().required(FIELD_REQUIRED),
             colegio: Yup.string().required(FIELD_REQUIRED),
-            nombre: Yup.string().required(FIELD_REQUIRED),            
+            familia: Yup.string().required(FIELD_REQUIRED),
+            email: Yup.string().required(FIELD_REQUIRED),
+            telefono: Yup.string().required(FIELD_REQUIRED),
             grado: Yup.string().required(FIELD_REQUIRED),
             mensualidad: Yup.string().required(FIELD_REQUIRED),
-            ciclo: Yup.string().required(FIELD_REQUIRED),
-            matricula: Yup.string().required(FIELD_REQUIRED),
-            curp: Yup.string().required(FIELD_REQUIRED),
-            correo: Yup.string().required(FIELD_REQUIRED),
-            telefono: Yup.string().required(FIELD_REQUIRED),
             beca: Yup.string().required(FIELD_REQUIRED),
+            matricula: Yup.string().required(FIELD_REQUIRED),
+            razonesSociales: Yup.array().min(1,FIELD_REQUIRED),            
         }),
         onSubmit: (values) => {
             //validaciones antes de enviarlo
@@ -68,6 +63,29 @@ export default function FormAlumnos(){
         }
     })
 
+    const handleChangeFamilia = value => {
+        setFamiliaObj(value);
+        if(value){
+            formik.setFieldValue('familia', value.value)
+        }else{
+            formik.setFieldValue('familia', '')
+        }        
+    }
+    const handleChangeColegio= value => {
+        setFamiliaObj(value);
+        if(value){
+            formik.setFieldValue('colegio', value.value)
+        }else{
+            formik.setFieldValue('colegio', '')
+        }        
+    }
+
+    const addRazonSocial = () => {
+        if(razonSocialOBj){
+            formik.values.razonesSociales.push(razonSocialOBj.value)
+        }
+    }
+
     return(
         <Form
             className="needs-validation"
@@ -79,127 +97,65 @@ export default function FormAlumnos(){
             }}
         >
             <Row>
-                <Col xs="12" md="2">
-                    <Label htmlFor="razonSocialCode" className="mb-0">Razón social</Label>
-                    <Input
-                        id="razonSocialCode"
-                        name="razonSocialCode"
-                        className={`form-control ${formik.errors.razonSocialCode ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.razonSocialCode}  
-                    />
-                    {
-                        (formik.touched.razonSocialCode && formik.errors.razonSocialCode) &&
-                        <div className="invalid-tooltip">{formik.errors.razonSocialCode}</div>
-                    }
-                </Col>
                 <Col xs="12" md="4">
-                    <Label htmlFor="razonSocial" className="mb-0 opacity-0">Razón social</Label>
-                    <Input
-                        id="razonSocial"
-                        name="razonSocial"
-                        className={`form-control ${formik.errors.razonSocial ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.razonSocial}  
-                    />
+                    <Label htmlFor="razonSocialCode" className="mb-0">Razón social</Label>
+                    <div className="d-flex">
+                        <div className="pe-2 flex-grow-1">
+                            <Select 
+                                classNamePrefix="select2-selection"
+                                placeholder={SELECT_OPTION}
+                                options={razonSocialOpt} 
+                                value={razonSocialOBj}
+                                onChange={value=>setRazonSocialObj(value)}
+                                isClearable
+                            />
+                        </div>
+                        <div>
+                        <Button
+                            color="primary"
+                            type="button"
+                            onClick={addRazonSocial}
+                        ><i className="bx bx-plus" />
+                        </Button>
+                        </div>
+                    </div>
+                    
                     {
-                        (formik.touched.razonSocial && formik.errors.razonSocial) &&
-                        <div className="invalid-tooltip">{formik.errors.razonSocial}</div>
+                        formik.errors.razonesSociales &&
+                        <div className="invalid-tooltip d-block">{formik.errors.razonesSociales}</div>
                     }
-                </Col>
-                
-                <Col xs="12" md="2">
-                    <Label htmlFor="estatus" className="mb-0">Estatus:</Label>
-                    <Input
-                        type="select"
-                        id="estatus"
-                        name="estatus"
-                        className={`form-control ${formik.errors.estatus ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.estatus}  
-                    >
-                        <option value="">{SELECT_OPTION}</option>
-                        <option value="activo">Activo</option>
-                        <option value="desactivado">Desactivado</option>
-                    </Input>
-                    {
-                        (formik.touched.estatus && formik.errors.estatus) &&
-                        <div className="invalid-tooltip">{formik.errors.estatus}</div>
-                    }
-                </Col>
-            </Row>
-            <Row>
-                <Col xs="12" md="2">
-                    <Label htmlFor="rfc" className="mb-0">RFC</Label>
-                    <Input
-                        id="rfc"
-                        name="rfc"
-                        className={`form-control ${formik.errors.rfc ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.rfc}  
-                    />
-                    {
-                        (formik.touched.rfc && formik.errors.rfc) &&
-                        <div className="invalid-tooltip">{formik.errors.rfc}</div>
-                    }
-                </Col>
-                <Col xs="12" md="2">
-                    <Label htmlFor="codigoPostal" className="mb-0">Código postal</Label>
-                    <Input
-                        id="codigoPostal"
-                        name="codigoPostal"
-                        className={`form-control ${formik.errors.codigoPostal ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.codigoPostal}  
-                    />
-                    {
-                        (formik.touched.codigoPostal && formik.errors.codigoPostal) &&
-                        <div className="invalid-tooltip">{formik.errors.codigoPostal}</div>
-                    }
-                </Col>
-                <Col xs="12" md="2">
-                    <Label htmlFor="regimen" className="mb-0">Regimen</Label>
-                    <Input
-                        id="regimen"
-                        name="regimen"
-                        className={`form-control ${formik.errors.regimen ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.regimen}  
-                    />
-                    {
-                        (formik.touched.regimen && formik.errors.regimen) &&
-                        <div className="invalid-tooltip">{formik.errors.regimen}</div>
-                    }
-                </Col>
+                </Col>               
             </Row>
             
             <Row className="py-4">
                 <Col xs="12" md="2">
-                    <Label htmlFor="numeroFamilia" className="mb-0">No. de familia</Label>
-                    <Input
-                        id="numeroFamilia"
-                        name="numeroFamilia"
-                        className={`form-control ${formik.errors.numeroFamilia ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.numeroFamilia}  
+                    <Label htmlFor="familia" className="mb-0">Familia</Label>
+                    <Select 
+                        classNamePrefix="select2-selection"
+                        placeholder={SELECT_OPTION}
+                        options={familiaOpt} 
+                        value={familiaOBj}
+                        onChange={handleChangeFamilia}
+                        isClearable
                     />
                     {
-                        (formik.touched.numeroFamilia && formik.errors.numeroFamilia) &&
-                        <div className="invalid-tooltip">{formik.errors.numeroFamilia}</div>
+                        (formik.touched.familia && formik.errors.familia) &&
+                        <div className="invalid-tooltip d-block">{formik.errors.familia}</div>
                     }
                 </Col>
                 <Col xs="12" md="2">
                     <Label htmlFor="colegio" className="mb-0">Colegio</Label>
-                    <Input
-                        id="colegio"
-                        name="colegio"
-                        className={`form-control ${formik.errors.colegio ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.colegio}  
+                    <Select 
+                        classNamePrefix="select2-selection"
+                        placeholder={SELECT_OPTION}
+                        options={colegioOpt} 
+                        value={colegioOBj}
+                        onChange={handleChangeColegio}
+                        isClearable
                     />
                     {
                         (formik.touched.colegio && formik.errors.colegio) &&
-                        <div className="invalid-tooltip">{formik.errors.colegio}</div>
+                        <div className="invalid-tooltip d-block">{formik.errors.colegio}</div>
                     }
                 </Col>
                 <Col xs="12" md="4">
@@ -245,20 +201,7 @@ export default function FormAlumnos(){
                     }
                 </Col>
 
-                <Col xs="12" md="2">
-                    <Label htmlFor="ciclo" className="mb-0">Ciclo</Label>
-                    <Input
-                        id="ciclo"
-                        name="ciclo"
-                        className={`form-control ${formik.errors.ciclo ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.ciclo}  
-                    />
-                    {
-                        (formik.touched.ciclo && formik.errors.ciclo) &&
-                        <div className="invalid-tooltip">{formik.errors.ciclo}</div>
-                    }
-                </Col>
+                
                 <Col xs="12" md="2">
                     <Label htmlFor="matricula" className="mb-0">Matrícula</Label>
                     <Input
@@ -288,17 +231,17 @@ export default function FormAlumnos(){
                     }
                 </Col>
                 <Col xs="12" md="2">
-                    <Label htmlFor="correo" className="mb-0">Correo</Label>
+                    <Label htmlFor="email" className="mb-0">email</Label>
                     <Input
-                        id="correo"
-                        name="correo"
-                        className={`form-control ${formik.errors.correo ? 'is-invalid' : ''}`}
+                        id="email"
+                        name="email"
+                        className={`form-control ${formik.errors.email ? 'is-invalid' : ''}`}
                         onChange={formik.handleChange}
-                        value={formik.values.correo}  
+                        value={formik.values.email}  
                     />
                     {
-                        (formik.touched.correo && formik.errors.correo) &&
-                        <div className="invalid-tooltip">{formik.errors.correo}</div>
+                        (formik.touched.email && formik.errors.email) &&
+                        <div className="invalid-tooltip">{formik.errors.email}</div>
                     }
                 </Col>
                 <Col xs="12" md="2">

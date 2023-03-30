@@ -11,7 +11,9 @@ import Concepto from "../pages/Concepto"
 import Configuracion from "../pages/Configuracion"
 import Dashboard from "../pages/Dashboard"
 import Documento from "../pages/Documento"
+import Familia from "../pages/Familia"
 import PasarelaPagos from "../pages/PasarelaPagos"
+import RazonSocial from "../pages/RazonSocial"
 
 const authProtectedRoutes = [
     { path: "/logout", component: Logout },
@@ -68,6 +70,8 @@ const managerRoutes = [
     { path: "/colegiatura", exact: true, component: Colegiatura },
     { path: "/pagos", exact: true, component: PasarelaPagos },
     { path: "/colegios", exact: true, component: Colegios },
+    { path: "/familias", exact: true, component: Familia },
+    { path: "/razonessociales", exact: true, component: RazonSocial },
 ]
 const agentRoutes = [
     //documents

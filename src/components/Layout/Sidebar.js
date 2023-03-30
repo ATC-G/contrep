@@ -139,12 +139,6 @@ function Sidebar(){
                             <span>Conceptos</span>
                         </Link> 
                       </li> */}
-                      <li> 
-                        <Link to="/colegios" className="">
-                            <i className="bx bxs-school"></i>
-                            <span>Colegios</span>
-                        </Link> 
-                      </li>
                       {/* <li>
                         <Link to="/configuracion" className="">
                             <i className="bx bx-cog"></i>
@@ -163,6 +157,7 @@ function Sidebar(){
                             <span>Pasarela de pagos</span>
                         </Link>           
                       </li>                         */}
+                      
 
                       {userLogued?.Role?.name === 'ADMINISTRADOR' &&
                       <>
@@ -176,28 +171,23 @@ function Sidebar(){
                       </>
                       }
 
-                      {/* {(userLogued?.Role?.name === 'ADMINISTRADOR' || userLogued?.Role?.name === 'MANAGER') && <li className="menu-title">Catalogs</li> }
-                      {(userLogued?.Role?.name === 'ADMINISTRADOR' || userLogued?.Role?.name === 'MANAGER') && 
                       <li>
-                          <Link to="/#" className="has-arrow">
-                              <i className='bx bx-select-multiple'></i>
-                              <span>Catalogs List</span>
-                          </Link>
-                          <ul className="sub-menu" aria-expanded="false">
-                            <li>
-                              <Link to="/stage-list">Stages </Link>                 
-                            </li>
-                            <li>
-                              <Link to="/relationship-list">Relationships</Link>                 
-                            </li>
-                            <li>
-                              <Link to="/topconfiguration-list">Header Report</Link>                 
-                            </li>
-                            <li>
-                              <Link to="/survey-list">Survey</Link>                 
-                            </li>
-                          </ul>
-                      </li> */}
+                        <Link to="/#" className="has-arrow ">
+                            <i className="bx bx-grid"></i>
+                            <span>Catálogos</span>
+                        </Link>
+                        <ul className="sub-menu">
+                          <li>
+                            <Link to="/familia">Familias</Link>
+                          </li>
+                          <li> 
+                            <Link to="/colegios" className="">Colegios</Link> 
+                          </li>
+                          <li> 
+                            <Link to="/razonessociales" className="">Razones sociales</Link> 
+                          </li>
+                        </ul>
+                      </li>
                       
                   </ul>
                 </div>

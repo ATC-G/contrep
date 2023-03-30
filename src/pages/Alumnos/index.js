@@ -26,7 +26,7 @@ function Alumnos(){
     const [query, setQuery] = useState({
       PageNumber: 0,
       PageSize: totalRegistros
-  })
+    })
 
   const fetchBoadTypeListPaginadoApi = async () => {
     setLoading(true)
