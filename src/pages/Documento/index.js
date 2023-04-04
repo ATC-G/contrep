@@ -1,18 +1,25 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useState } from "react";
 import { withRouter } from "react-router-dom";
+import { toast } from "react-toastify";
 import { Button, Col, Container, InputGroup, Row } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import CardBasic from "../../components/Common/CardBasic";
-import IntegrarAlumnos from "../../components/Documento/IntegrarAlumnos";
+import GenerarReferencia from "../../components/Documento/GenerarReferencia";
 import SimpleLoad from "../../components/Loader/SimpleLoad";
 import SimpleTable from "../../components/Tables/SimpleTable";
-import { testItemsDocumentos } from "../../data/testData";
+import { ERROR_SERVER, SELECT_OPTION } from "../../constants/messages";
+import { getFamiliaList } from "../../helpers/familia";
+import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
+import Select from 'react-select';
+import { getReferenciasByFamily } from "../../helpers/referencia";
 
 function Documento(){  
     const [loading, setLoading] = useState(false)
     const [items, setItems] = useState([]);
     const [searchBy, setSearchBy] = useState('')
+    const [searchF, setSearchF] = useState(null)
+    const [familiaOpt, setFamiliaOpt] = useState([]);
 
     const columns = useMemo(
         () => [
@@ -35,29 +42,48 @@ function Documento(){
         ],
         []
     );
+
+    const fetchFamiliasApi = async () => {
+      try {
+          const response = await getFamiliaList();
+          if(response.length > 0){
+              setFamiliaOpt(response.map(fm=>({label: `${fm.apellidoPaterno} ${fm.apellidoMaterno}`, value: fm.id, codigo: fm.codigo})))
+          }else{
+              setFamiliaOpt([])
+          }
+          
+      } catch (error) {
+          let message  = ERROR_SERVER;
+          message = extractMeaningfulMessage(error, message)
+          toast.error(message);
+          setFamiliaOpt([])
+      } 
+    }
+
+    useEffect(() => {
+      fetchFamiliasApi();
+    }, [])
   
     const cardChildren = (
         <>
             <Row className="mt-2">
                 <Col>
-                    <IntegrarAlumnos />
+                    <GenerarReferencia />
                 </Col>
             </Row>
         </>
     );
 
-    const buscar = () => {
-      let queryCopy = {
-        PageNumber: 0,
-        PageSize: 10
-      }
-      if(searchBy){
-        queryCopy = {
-          ...queryCopy,
-          parameter: searchBy
+    const buscar = async () => {
+      try {
+        const response = await getReferenciasByFamily(searchBy.codigo)
+        console.log(response)
+        if(response.data.length > 0){
+            console.log('result')
         }
-      }
-      //setQuery(queryCopy);    
+    } catch (error) {
+        console.log(error)
+    }
     }
 
     const cardHandleList = (
@@ -65,19 +91,26 @@ function Documento(){
         <div className="d-flex justify-content-end">
             <div className="mb-1">
               <InputGroup>
-                <input
+                <Select 
+                    classNamePrefix="select2-selection"
+                    placeholder={SELECT_OPTION}
+                    options={familiaOpt} 
+                    value={searchF}
+                    onChange={value=>setSearchF(value)}
+                    isClearable
+                /> 
+                {/* <input
                   type="text"  
                   id="search"
                   className="form-control" 
                   placeholder="Buscar documento"
                   value={searchBy}
                   onChange={e=>setSearchBy(e.target.value)}
-                />
+                /> */}
                 <div
                   className="input-group-append"
-                  onClick={buscar}
                 >
-                  <Button type="button" color="primary">
+                  <Button type="button" color="primary" onClick={buscar} disabled={!searchF}>
                     <i className="bx bx-search-alt-2" />
                   </Button>
                 </div>

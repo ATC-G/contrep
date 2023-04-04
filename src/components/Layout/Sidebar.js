@@ -178,7 +178,7 @@ function Sidebar(){
                         </Link>
                         <ul className="sub-menu">
                           <li>
-                            <Link to="/familia">Familias</Link>
+                            <Link to="/familias">Familias</Link>
                           </li>
                           <li> 
                             <Link to="/colegios" className="">Colegios</Link> 

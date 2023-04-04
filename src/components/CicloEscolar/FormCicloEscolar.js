@@ -23,7 +23,6 @@ export default function FormCicloEscolar(){
         fechaInicio:'',
         fechaFin: '',
         fechaPagos:[{
-            id: '',
             year: '',
             mes: '',
             fechaLimite: '',
@@ -58,24 +57,24 @@ export default function FormCicloEscolar(){
                     year: Yup.string().required(FIELD_REQUIRED),
                     mes: Yup.string().required(FIELD_REQUIRED),
                     fechaLimite: Yup.string().required(FIELD_REQUIRED),
-                    interes: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(1, CAMPO_MAYOR_CERO).max(100, CAMPO_MENOR_CIEN),
+                    interes: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(0, CAMPO_MAYOR_CERO).max(100, CAMPO_MENOR_CIEN),
                 })
             ),  
         }),
         onSubmit: async (values) => {
             //validaciones antes de enviarlo
             setShowLoad(true)
-           const d = {
-                ...values,
-                fechaInicio: moment(values.fechaInicio).format("YYYY-MM-DD"),
-                fechaFin: moment(values.fechaFin).format("YYYY-MM-DD"),
-                fechaPagos: values.fechaPagos.map((fp) => ({interes: fp.interes, fechaLimite: moment(fp.fechaLimite).format('YYYY-MM-DD')}))
-           }
-           console.log(d)
+        //    const d = {
+        //         ...values,
+        //         fechaInicio: moment(values.fechaInicio).format("YYYY-MM-DD"),
+        //         fechaFin: moment(values.fechaFin).format("YYYY-MM-DD"),
+        //         fechaPagos: values.fechaPagos.map((fp) => ({interes: fp.interes, fechaLimite: moment(fp.fechaLimite).format('YYYY-MM-DD')}))
+        //    }
+        //    console.log(d)
            if(values.id){
             //update
                 try {
-                    let response = await updateCiclos(d, values.id)
+                    let response = await updateCiclos(values, values.id)
                     console.log(response)
                     if(response){
                         toast.success(UPDATE_SUCCESS);                        
@@ -111,12 +110,10 @@ export default function FormCicloEscolar(){
     })
     
     const fetchCiclosByColegio = async (value) => {
-        console.log(value)
         setShowLoad(true)
         try {
             const q = `${value.value}?PageNumber=1&PageSize=100`
             const response = await getCiclosByColegio(q)
-            console.log(response)
             if(response.data.length > 0){
                 const result = response.data[0]
                 setItem({
@@ -124,7 +121,15 @@ export default function FormCicloEscolar(){
                     colegioId: result.colegioId,
                     fechaInicio:moment(result.fechaInicio, 'YYYY-MM-DD').toDate(),
                     fechaFin: moment(result.fechaFin, 'YYYY-MM-DD').toDate(),
-                    fechaPagos:result.fechaPagos.map((fp) => ({interes: fp.interes, fechaLimite: moment(fp.fechaLimite, 'YYYY-MM-DD').toDate()})),
+                    fechaPagos:result.fechaPagos.map((fp) => ({
+                        id: fp.id,
+                        interes: fp.interes, 
+                        year: fp.year,
+                        mes: fp.mes,
+                        fechaLimite: moment(fp.fechaLimite, 'YYYY-MM-DD').toDate(),
+                        anual: fp.anual,
+                        repetir: fp.repetir
+                    })),
                 })
                 setFecha([result.fechaInicio, result.fechaFin])
             }else{
@@ -134,8 +139,12 @@ export default function FormCicloEscolar(){
                     fechaInicio:'',
                     fechaFin: '',
                     fechaPagos:[{
+                        year: '',
+                        mes: '',
                         fechaLimite: '',
-                        interes: ''
+                        interes: '',
+                        anual: false,
+                        repetir: false
                     }],
                 })
                 setFecha()
@@ -155,7 +164,7 @@ export default function FormCicloEscolar(){
             formik.setFieldValue('colegioId', '')
         }        
     }
-    
+    console.log(formik.errors)
     return(
         <Form
             className="needs-validation"
