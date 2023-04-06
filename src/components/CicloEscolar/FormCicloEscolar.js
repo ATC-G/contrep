@@ -1,6 +1,6 @@
 import { Field, FieldArray, FormikProvider, useFormik } from "formik";
 import { useEffect, useState } from "react"
-import { Button, Col, Form, Label, Row } from "reactstrap";
+import { Alert, Button, Col, Form, Label, Row } from "reactstrap";
 import * as Yup from "yup";
 import SimpleDate from "../DatePicker/SimpleDate";
 import Select from 'react-select';
@@ -11,6 +11,7 @@ import { getCiclosByColegio, saveCiclos, updateCiclos } from "../../helpers/cicl
 import moment from "moment/moment";
 import { toast } from "react-toastify";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
+import {mesesOpt} from '../../constants/utils';
 
 export default function FormCicloEscolar(){
     const [fecha, setFecha] = useState()
@@ -45,6 +46,17 @@ export default function FormCicloEscolar(){
         fetchColegios();
     }, [])
 
+    Yup.addMethod(Yup.array, 'uniqueAnual', function (message, mapper = a => a) {
+        return this.test('uniqueAnual', message, function (list) {
+          return list.filter(l=>l.anual).length === 1;
+        });
+    });
+    Yup.addMethod(Yup.array, 'uniqueRepetir', function (message, mapper = a => a) {
+        return this.test('uniqueRepetir', message, function (list) {
+          return list.filter(l=>l.repetir).length === 1;
+        });
+    });
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: item,
@@ -57,9 +69,11 @@ export default function FormCicloEscolar(){
                     year: Yup.string().required(FIELD_REQUIRED),
                     mes: Yup.string().required(FIELD_REQUIRED),
                     fechaLimite: Yup.string().required(FIELD_REQUIRED),
-                    interes: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(0, CAMPO_MAYOR_CERO).max(100, CAMPO_MENOR_CIEN),
+                    interes: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(0, CAMPO_MAYOR_CERO).max(100, CAMPO_MENOR_CIEN), 
                 })
-            ),  
+            )
+            .uniqueAnual("Solo se puede seleccionar una fila como anual", a=>a.anual)
+            .uniqueRepetir("Solo se puede seleccionar una fila como repetida", a=>a.anual)
         }),
         onSubmit: async (values) => {
             //validaciones antes de enviarlo
@@ -219,13 +233,17 @@ export default function FormCicloEscolar(){
                     } 
                 </Col>                                     
             </Row>
+            {
+                formik.errors.fechaPagos && !Array.isArray(formik.errors.fechaPagos) &&
+                <Alert color="danger" className="p-2 mt-2">{formik.errors.fechaPagos}</Alert>
+            }
             <Row>
                 <Col>
                     <FormikProvider value={formik}>
                     <FieldArray
                         name="fechaPagos"
                         render={arrayHelper=>(
-                            <div className="border bg-light p-2 mt-2">
+                            <div className="border bg-light p-2 mt-1">
                                 {
                                     (formik.values.fechaPagos && formik.values.fechaPagos.length > 0) &&
                                     formik.values.fechaPagos.map((item, index) => (
@@ -275,7 +293,16 @@ export default function FormCicloEscolar(){
                                                     <Field
                                                         className={`form-control`}
                                                         name={`fechaPagos.${index}.mes`} 
-                                                    />
+                                                        as="select"
+                                                    >
+                                                        <option value="">{SELECT_OPTION}</option>
+                                                        <option value="N/A">N/A</option>
+                                                        {
+                                                            mesesOpt.map((mes) => (
+                                                                <option key={mes.value} value={mes.label}>{mes.label}</option>
+                                                            ))
+                                                        }
+                                                    </Field>
                                                     {
                                                         formik.errors?.fechaPagos?.length > 0 && formik.errors.fechaPagos[index]?.mes &&
                                                         <div className="invalid-tooltip d-block">{formik.errors.fechaPagos[index]?.mes}</div>

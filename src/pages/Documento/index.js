@@ -13,6 +13,8 @@ import { getFamiliaList } from "../../helpers/familia";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import Select from 'react-select';
 import { getReferenciasByFamily } from "../../helpers/referencia";
+import { numberFormat } from "../../utils/numberFormat";
+import moment from "moment";
 
 function Documento(){  
     const [loading, setLoading] = useState(false)
@@ -26,18 +28,21 @@ function Documento(){
           {
             Header: 'Mes',
             accessor: 'mes', // accessor is the "key" in the data
+            Cell: ({row}) => <strong>{`${row.values.mes} ${row.original.year}`}</strong>,
           },
           {
             Header: 'Concepto de pago',
-            accessor: 'conceptoPago',
+            accessor: 'referenciaBancaria',
           },
           {
             Header: 'Monto',
             accessor: 'monto',
+            Cell: ({row}) => numberFormat(row.values.monto),
           },
           {
             Header: 'Fecha límite de pago',
-            accessor: 'fechaLimitePago',
+            accessor: 'fechaLimite',
+            Cell: ({row}) => moment(row.values.fechaLimite, 'YYYY-MM-DD').format('DD/MM/YYYY'),
           },
         ],
         []
@@ -63,7 +68,7 @@ function Documento(){
     useEffect(() => {
       fetchFamiliasApi();
     }, [])
-  
+    
     const cardChildren = (
         <>
             <Row className="mt-2">
@@ -76,13 +81,13 @@ function Documento(){
 
     const buscar = async () => {
       try {
-        const response = await getReferenciasByFamily(searchBy.codigo)
-        console.log(response)
-        if(response.data.length > 0){
-            console.log('result')
+        const response = await getReferenciasByFamily(searchF.codigo)
+        if(response.length > 0){
+            setItems(response[0]?.referencias ?? [])
         }
     } catch (error) {
         console.log(error)
+        setItems([])
     }
     }
 
@@ -99,14 +104,6 @@ function Documento(){
                     onChange={value=>setSearchF(value)}
                     isClearable
                 /> 
-                {/* <input
-                  type="text"  
-                  id="search"
-                  className="form-control" 
-                  placeholder="Buscar documento"
-                  value={searchBy}
-                  onChange={e=>setSearchBy(e.target.value)}
-                /> */}
                 <div
                   className="input-group-append"
                 >

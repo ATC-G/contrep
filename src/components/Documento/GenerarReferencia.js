@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Form, Input, Label, Row } from "reactstrap";
-import SimpleDate from "../DatePicker/SimpleDate";
+import { Button, Col, Form, Label, Row } from "reactstrap";
 import Select from 'react-select';
 import { ERROR_SERVER, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION } from "../../constants/messages";
-import { mesesOpt } from "../../constants/utils";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { generateReferencia } from "../../helpers/referencia";
@@ -12,6 +10,7 @@ import { getFamiliaList } from "../../helpers/familia";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import { getColegiosList } from "../../helpers/colegios";
 import { getCiclosByColegio } from "../../helpers/ciclos";
+import SubmitingForm from "../Loader/SubmitingForm";
 
 export default function GenerarReferencia(){
     const [familiaOBj, setFamiliaObj] = useState(null)
@@ -19,6 +18,7 @@ export default function GenerarReferencia(){
     const [colegioOBj, setColegioObj] = useState(null)
     const [colegioOpt, setColegioOpt] = useState([]);
     const [showLoad, setShowLoad] = useState(false)
+    const [isSubmit, setIsSubmit] = useState(false);
     
 
     const fetchColegios = async () => {
@@ -62,12 +62,13 @@ export default function GenerarReferencia(){
             ciclo: Yup.string().required(FIELD_REQUIRED),           
         }),
         onSubmit: (values) => {
+            setIsSubmit(true)
             //validaciones antes de enviarlo
             console.log(values)           
             //service here
             const urlPlus = `/${values.ciclo}/${values.familia}`
-            try {
-                async function callApi() {
+            async function callApi() {
+                try {
                     let response = await generateReferencia(urlPlus)
                     console.log(response)
                     if(response){
@@ -76,11 +77,17 @@ export default function GenerarReferencia(){
                     }else{
                         toast.error(ERROR_SERVER);
                     }
+                    setIsSubmit(false)
+                } catch (error) {
+                    console.log(error)
+                    let message  = ERROR_SERVER;
+                    message = extractMeaningfulMessage(error, message)
+                    toast.error(message); 
+                    setIsSubmit(false)
                 }
-                callApi()
-            }catch(error) {
-                toast.error(ERROR_SERVER); 
+                
             }
+            callApi()
         }
     })
     const resetForm = () => {
@@ -134,6 +141,7 @@ export default function GenerarReferencia(){
                 return false;
             }}
         >
+            {isSubmit && <SubmitingForm />}
             <Row>
                 <Col xs="12" md="3">
                     <Label htmlFor={`familia`} className="mb-0">Familia</Label>
@@ -169,12 +177,24 @@ export default function GenerarReferencia(){
             </Row>
             <hr />
             <div className="d-flex justify-content-end">
-                <Button
+                {
+                    (formik.values.familia && formik.values.ciclo) ?
+                    <Button
                     color="success"
                     className="btn btn-success"
                     type="submit"
-                >Generar referencia
-                </Button>
+                    >Generar referencia
+                    </Button> : 
+                    <Button
+                        color="success"
+                        className="btn btn-success"
+                        type="button"
+                        disabled
+                    >Generar referencia
+                    </Button>
+
+                }
+                
             </div>
         </Form>
     )

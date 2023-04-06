@@ -23,6 +23,7 @@ function Login(){
           password: Yup.string().required("Contraseña requerido"),
         }),
         onSubmit: async (values) => {
+          setError('')
           try{
             const response = await postJwtLogin(values)
             if(response){ 
@@ -52,7 +53,7 @@ function Login(){
                             <h6 className="text-white d-none d-md-block">Sistema de control y administracion</h6>
                           </div>
                         </div>
-                        <div className="overlay"></div>
+                        <div className="overlay-login"></div>
                         <img src={profile} alt="" className="img-fluid" />
                       </Col>
                     </Row>                    
