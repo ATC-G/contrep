@@ -1,11 +1,19 @@
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Col, Form, Input, Label, Row } from "reactstrap";
 import * as Yup from "yup";
-import { FIELD_REQUIRED, SELECT_OPTION } from "../../constants/messages";
+import { ERROR_SERVER, FIELD_EMAIL, FIELD_NUMERIC, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION, UPDATE_SUCCESS } from "../../constants/messages";
 import Select from 'react-select';
+import { getRazonSocialQuery } from "../../helpers/razonsocial";
+import { getFamiliaList } from "../../helpers/familia";
+import { getColegiosList } from "../../helpers/colegios";
+import { saveAlumnos, updateAlumnos } from "../../helpers/alumnos";
+import { toast } from "react-toastify";
+import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
+import SubmitingForm from "../Loader/SubmitingForm";
 
-export default function FormAlumnos(){
+export default function FormAlumnos({item, setItem, setReloadList}){
+    const [isSubmit, setIsSubmit] = useState(false);
     const [colegioOBj, setColegioObj] = useState(null)
     const [colegioOpt, setColegioOpt] = useState([])
     const [familiaOBj, setFamiliaObj] = useState(null)
@@ -14,78 +22,166 @@ export default function FormAlumnos(){
     const [razonSocialOpt, setRazonSocialOpt] = useState([])
 
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
-            nombre: '',
-            curp: '',
-            colegio: '',
-            familia: '',
-            email: '',
-            telefono: '',
-            grado: '',
-            mensualidad: '',
-            beca: '',
-            matricula: '',
-            razonesSociales:[],     
+            id: item?.id ?? '',
+            nombre: item?.nombre ?? '',
+            curp: item?.curp ?? '',
+            colegio: item?.colegio ?? '',
+            familia: item?.familia ?? '',
+            email: item?.email ?? '',
+            telefono: item?.telefono ?? '',
+            grado: item?.grado ?? '',
+            mensualidad: item?.mensualidad ?? '',
+            beca: item?.beca ?? '',
+            matricula: item?.matricula ?? '',
+            razonesSociales:item?.razonesSociales ?? [],     
         },
         validationSchema: Yup.object({
             nombre: Yup.string().required(FIELD_REQUIRED), 
             curp: Yup.string().required(FIELD_REQUIRED),
             colegio: Yup.string().required(FIELD_REQUIRED),
             familia: Yup.string().required(FIELD_REQUIRED),
-            email: Yup.string().required(FIELD_REQUIRED),
+            email: Yup.string().email(FIELD_EMAIL).required(FIELD_REQUIRED),
             telefono: Yup.string().required(FIELD_REQUIRED),
             grado: Yup.string().required(FIELD_REQUIRED),
-            mensualidad: Yup.string().required(FIELD_REQUIRED),
-            beca: Yup.string().required(FIELD_REQUIRED),
+            mensualidad: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED),
+            beca: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED),
             matricula: Yup.string().required(FIELD_REQUIRED),
-            razonesSociales: Yup.array().min(1,FIELD_REQUIRED),            
+            razonesSociales: Yup.array().of(Yup.string()).min(1,FIELD_REQUIRED),            
         }),
-        onSubmit: (values) => {
+        onSubmit: async (values) => {
+            setIsSubmit(true)
             //validaciones antes de enviarlo
             console.log(values)
            
             //service here
-            // try {
-            //     async function savePartnerApi() {
-            //         let response = await savePartner(values)
-            //         if(response.state){
-            //             toast.success("Actualizado correctamente");
-            //             setReloadPartner(true)
-            //             setShowForm(false)
-            //         }else{
-            //             toast.error(ERROR_SERVER);
-            //         }
-            //     }
-            //     savePartnerApi()
-            // }catch(error) {
-            //     toast.error(ERROR_SERVER); 
-            // }
+            if(values.id){
+                //update
+                try {
+                    let response = await updateAlumnos(values)
+                    if(response){
+                        toast.success(UPDATE_SUCCESS);
+                        setReloadList(true)
+                        resetForm();
+                    }else{
+                        toast.error(ERROR_SERVER);
+                    }
+                    setIsSubmit(false)
+                } catch (error) {
+                    let message  = ERROR_SERVER;
+                    message = extractMeaningfulMessage(error, message)
+                    toast.error(message); 
+                    setIsSubmit(false)
+                }
+            }else{
+                //save
+                try{
+                    let response = await saveAlumnos(values)
+                    if(response){
+                        toast.success(SAVE_SUCCESS);
+                        setReloadList(true)
+                        resetForm();
+                    }else{
+                        toast.error(ERROR_SERVER);
+                    }
+                    setIsSubmit(false)
+                }catch(error){
+                    let message  = ERROR_SERVER;
+                    message = extractMeaningfulMessage(error, message)
+                    toast.error(message); 
+                    setIsSubmit(false)
+                }
+            }
         }
     })
+
+    const resetForm = () => {
+        setItem(null)
+        setColegioObj(null)
+        setFamiliaObj(null)
+        setRazonSocialObj(null)
+        formik.resetForm();
+    }
 
     const handleChangeFamilia = value => {
         setFamiliaObj(value);
         if(value){
-            formik.setFieldValue('familia', value.value)
+            formik.setFieldValue('familia', value.codigo)
         }else{
             formik.setFieldValue('familia', '')
         }        
     }
     const handleChangeColegio= value => {
-        setFamiliaObj(value);
+        setColegioObj(value);
         if(value){
-            formik.setFieldValue('colegio', value.value)
+            formik.setFieldValue('colegio', value.codigo)
         }else{
             formik.setFieldValue('colegio', '')
         }        
     }
-
     const addRazonSocial = () => {
         if(razonSocialOBj){
-            formik.values.razonesSociales.push(razonSocialOBj.value)
+            if(!formik.values.razonesSociales.includes(razonSocialOBj.value)){
+                const copyRz = [...formik.values.razonesSociales];
+                copyRz.push(razonSocialOBj.value)
+                formik.setFieldValue('razonesSociales', copyRz)
+            }            
         }
     }
-
+    const fetchRazonSocialListPaginadoApi = async () => {
+        try {
+            const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
+            if(response.data.length){
+                setRazonSocialOpt(response.data.map(rz=>({label: rz.nombre, value: rz.id})))
+            }else{
+                setRazonSocialOpt([])
+            }            
+        } catch (error) {
+            console.log(error)
+            setRazonSocialOpt([])
+        } 
+    }
+    const fetchFamiliasApi = async () => {
+        try {
+            const response = await getFamiliaList();
+            if(response.length > 0){
+                setFamiliaOpt(response.map(fm=>({label: `${fm.apellidoPaterno} ${fm.apellidoMaterno}`, value: fm.id, codigo: fm.codigo})))
+            }else{
+                setFamiliaOpt([])
+            }
+            
+        } catch (error) {
+            console.log(error)
+            setFamiliaOpt([])
+        } 
+    }
+    const fetchColegios = async () => {
+        try {
+            const response = await getColegiosList();
+            setColegioOpt(response.map(r=>({value: r.id, label: r.nombre, codigo: r.codigo})))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    useEffect(() => {
+        fetchRazonSocialListPaginadoApi()
+        fetchFamiliasApi()
+        fetchColegios()
+    }, [])
+    
+    const deleteRazonSocial = (id) => {
+        const currentRZ = formik.values.razonesSociales.filter(rz=>rz!==id);
+        formik.setFieldValue('razonesSociales', currentRZ);
+    }
+    
+    //fill out the selects obj
+    useEffect(() => {
+        if(item){
+            setFamiliaObj({value: item.familia, label: familiaOpt.find(f=>f.codigo===item.familia)?.label})
+            setColegioObj({value: item.colegio, label: colegioOpt.find(c=>c.codigo===item.colegio)?.label})
+        }
+    },[item])
     return(
         <Form
             className="needs-validation"
@@ -96,6 +192,7 @@ export default function FormAlumnos(){
                 return false;
             }}
         >
+            {isSubmit && <SubmitingForm />}
             <Row>
                 <Col xs="12" md="4">
                     <Label htmlFor="razonSocialCode" className="mb-0">Razón social</Label>
@@ -119,6 +216,17 @@ export default function FormAlumnos(){
                         </Button>
                         </div>
                     </div>
+                    <ul className="bg-light">
+                        {
+                             formik.values.razonesSociales.map((rzId) => (
+                                <div className="d-flex align-items-center justify-content-between" key={rzId}>
+                                    <li>{razonSocialOpt.find(rz=>rz.value===rzId).label}</li>                                
+                                    <Button color="link" onClick={e=>deleteRazonSocial(rzId)}><i className="bx bx-trash text-danger" /></Button>
+                                </div>
+                                
+                            ))
+                        }
+                    </ul>
                     
                     {
                         formik.errors.razonesSociales &&
@@ -139,7 +247,7 @@ export default function FormAlumnos(){
                         isClearable
                     />
                     {
-                        (formik.touched.familia && formik.errors.familia) &&
+                        formik.errors.familia &&
                         <div className="invalid-tooltip d-block">{formik.errors.familia}</div>
                     }
                 </Col>
@@ -154,7 +262,7 @@ export default function FormAlumnos(){
                         isClearable
                     />
                     {
-                        (formik.touched.colegio && formik.errors.colegio) &&
+                        formik.errors.colegio &&
                         <div className="invalid-tooltip d-block">{formik.errors.colegio}</div>
                     }
                 </Col>
@@ -168,7 +276,7 @@ export default function FormAlumnos(){
                         value={formik.values.nombre}  
                     />
                     {
-                        (formik.touched.nombre && formik.errors.nombre) &&
+                        formik.errors.nombre &&
                         <div className="invalid-tooltip">{formik.errors.nombre}</div>
                     }
                 </Col>
@@ -182,7 +290,7 @@ export default function FormAlumnos(){
                         value={formik.values.grado}  
                     />
                     {
-                        (formik.touched.grado && formik.errors.grado) &&
+                        formik.errors.grado &&
                         <div className="invalid-tooltip">{formik.errors.grado}</div>
                     }
                 </Col>
@@ -196,7 +304,7 @@ export default function FormAlumnos(){
                         value={formik.values.mensualidad}  
                     />
                     {
-                        (formik.touched.mensualidad && formik.errors.mensualidad) &&
+                        formik.errors.mensualidad &&
                         <div className="invalid-tooltip">{formik.errors.mensualidad}</div>
                     }
                 </Col>
@@ -212,7 +320,7 @@ export default function FormAlumnos(){
                         value={formik.values.matricula}  
                     />
                     {
-                        (formik.touched.matricula && formik.errors.matricula) &&
+                        formik.errors.matricula &&
                         <div className="invalid-tooltip">{formik.errors.matricula}</div>
                     }
                 </Col>
@@ -226,7 +334,7 @@ export default function FormAlumnos(){
                         value={formik.values.curp}  
                     />
                     {
-                        (formik.touched.curp && formik.errors.curp) &&
+                        formik.errors.curp &&
                         <div className="invalid-tooltip">{formik.errors.curp}</div>
                     }
                 </Col>
@@ -240,7 +348,7 @@ export default function FormAlumnos(){
                         value={formik.values.email}  
                     />
                     {
-                        (formik.touched.email && formik.errors.email) &&
+                        formik.errors.email &&
                         <div className="invalid-tooltip">{formik.errors.email}</div>
                     }
                 </Col>
@@ -254,7 +362,7 @@ export default function FormAlumnos(){
                         value={formik.values.telefono}  
                     />
                     {
-                        (formik.touched.telefono && formik.errors.telefono) &&
+                        formik.errors.telefono &&
                         <div className="invalid-tooltip">{formik.errors.telefono}</div>
                     }
                 </Col>
@@ -268,7 +376,7 @@ export default function FormAlumnos(){
                         value={formik.values.beca}  
                     />
                     {
-                        (formik.touched.beca && formik.errors.beca) &&
+                        formik.errors.beca &&
                         <div className="invalid-tooltip">{formik.errors.beca}</div>
                     }
                 </Col>
@@ -276,17 +384,25 @@ export default function FormAlumnos(){
             <hr />
             <div className="d-flex justify-content-end">
                 <Button
-                    color="secondary"
-                    type="button"
-                    className="me-2"
-                >Expediente
-                </Button>
-                <Button
                     color="success"
                     className="btn btn-success"
                     type="submit"
-                >Guardar
+                >{
+                    formik.values.id ? 'Actualizar' : 'Guardar'
+                }
                 </Button>
+                {formik.values.id && 
+                <Button
+                    color="link"
+                    type="button"
+                    className="text-danger"
+                    onClick={() => {
+                        setItem(null)
+                        resetForm()
+                    }}
+                >
+                        Cancelar                    
+                </Button>}
             </div>
         </Form>
         

@@ -28,7 +28,7 @@ function RazonSocial(){
       PageSize: totalRegistros
     })
 
-    const fetchBoadTypeListPaginadoApi = async () => {
+    const fetchListPaginadoApi = async () => {
         setLoading(true)
         let q = Object.keys(query).map(key=>`${key}=${query[key]}`).join("&")
         try {
@@ -43,23 +43,20 @@ function RazonSocial(){
             message = extractMeaningfulMessage(error, message)
             toast.error(message);
             setItems([])
-            //setTotalPaginas(0)
-            //setTotalRegistros(10)
             setLoading(false)
         } 
     }
     useEffect(() => {
-        fetchBoadTypeListPaginadoApi()
-      }, [query])
+        fetchListPaginadoApi()
+    }, [query])
     useEffect(() => {
         if(reload){
-            fetchBoadTypeListPaginadoApi()
+            fetchListPaginadoApi()
             setReload(false)
         }
     }, [reload])
 
     const editAction = (row) => {
-        console.log(row)
         setItem(row.original)
         setOpenAccordion(true)
         window.scrollTo({top: 0, left: 0, behavior: 'smooth'})

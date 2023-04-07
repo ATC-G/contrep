@@ -178,7 +178,6 @@ export default function FormCicloEscolar(){
             formik.setFieldValue('colegioId', '')
         }        
     }
-    console.log(formik.errors)
     return(
         <Form
             className="needs-validation"
