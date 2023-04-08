@@ -28,7 +28,7 @@ function Documento(){
           {
             Header: 'Mes',
             accessor: 'mes', // accessor is the "key" in the data
-            Cell: ({row}) => <strong>{`${row.values.mes} ${row.original.year}`}</strong>,
+            Cell: ({row}) => <strong>{`${row.values.mes !== 'N/A' ? row.values.mes : ''} ${row.original.year > 0 ? row.original.year : ''}`}</strong>,
           },
           {
             Header: 'Concepto de pago',
@@ -80,14 +80,19 @@ function Documento(){
     );
 
     const buscar = async () => {
+      setLoading(true)
       try {
         const response = await getReferenciasByFamily(searchF.codigo)
         if(response.length > 0){
             setItems(response[0]?.referencias ?? [])
         }
+        setLoading(false)
     } catch (error) {
-        console.log(error)
-        setItems([])
+      let message  = ERROR_SERVER;
+      message = extractMeaningfulMessage(error, message)
+      toast.error(message);
+      setItems([])
+      setLoading(false)
     }
     }
 

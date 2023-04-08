@@ -2,7 +2,7 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { Button, Col, Form, Input, Label, Row } from "reactstrap";
 import * as Yup from "yup";
-import { ERROR_SERVER, FIELD_EMAIL, FIELD_NUMERIC, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION, UPDATE_SUCCESS } from "../../constants/messages";
+import { CAMPO_MAYOR_CERO, CAMPO_MENOR_CIEN, ERROR_SERVER, FIELD_EMAIL, FIELD_NUMERIC, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION, UPDATE_SUCCESS } from "../../constants/messages";
 import Select from 'react-select';
 import { getRazonSocialQuery } from "../../helpers/razonsocial";
 import { getFamiliaList } from "../../helpers/familia";
@@ -46,7 +46,7 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             telefono: Yup.string().required(FIELD_REQUIRED),
             grado: Yup.string().required(FIELD_REQUIRED),
             mensualidad: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED),
-            beca: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED),
+            beca: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(0, CAMPO_MAYOR_CERO).max(100, CAMPO_MENOR_CIEN), 
             matricula: Yup.string().required(FIELD_REQUIRED),
             razonesSociales: Yup.array().of(Yup.string()).min(1,FIELD_REQUIRED),            
         }),
@@ -339,7 +339,7 @@ export default function FormAlumnos({item, setItem, setReloadList}){
                     }
                 </Col>
                 <Col xs="12" md="2">
-                    <Label htmlFor="email" className="mb-0">email</Label>
+                    <Label htmlFor="email" className="mb-0">Correo electrónico</Label>
                     <Input
                         id="email"
                         name="email"

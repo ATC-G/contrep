@@ -66,7 +66,7 @@ export default function FormCicloEscolar(){
             fechaFin: Yup.string().required(FIELD_REQUIRED),
             fechaPagos: Yup.array().of(
                 Yup.object().shape({
-                    year: Yup.string().required(FIELD_REQUIRED),
+                    year: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(2000, "Campo debe estar en el rango 2000 - 2050").max(2050, "Campo debe estar en el rango 2000 - 2050"),
                     mes: Yup.string().required(FIELD_REQUIRED),
                     fechaLimite: Yup.string().required(FIELD_REQUIRED),
                     interes: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(0, CAMPO_MAYOR_CERO).max(100, CAMPO_MENOR_CIEN), 
@@ -78,18 +78,10 @@ export default function FormCicloEscolar(){
         onSubmit: async (values) => {
             //validaciones antes de enviarlo
             setShowLoad(true)
-        //    const d = {
-        //         ...values,
-        //         fechaInicio: moment(values.fechaInicio).format("YYYY-MM-DD"),
-        //         fechaFin: moment(values.fechaFin).format("YYYY-MM-DD"),
-        //         fechaPagos: values.fechaPagos.map((fp) => ({interes: fp.interes, fechaLimite: moment(fp.fechaLimite).format('YYYY-MM-DD')}))
-        //    }
-        //    console.log(d)
            if(values.id){
             //update
                 try {
                     let response = await updateCiclos(values, values.id)
-                    console.log(response)
                     if(response){
                         toast.success(UPDATE_SUCCESS);                        
                     }else{
