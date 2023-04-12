@@ -6,8 +6,6 @@ import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import CardBasic from "../../components/Common/CardBasic";
 
 function CicloEscolar(){  
-  const [loading, setLoading] = useState(false)
-  const [items, setItems] = useState([]);
   const [openAccordion, setOpenAccordion] = useState(true)
 
   const cardChildren = (

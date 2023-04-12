@@ -1,96 +1,80 @@
-import { useFormik } from "formik"
-import { useState } from "react";
-import { Button, Col, Form, Input, Label, Row } from "reactstrap";
-import * as Yup from "yup";
-import SimpleDate from "../DatePicker/SimpleDate";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { Button, Col, Label, Row } from "reactstrap";
+import { ERROR_SERVER, SELECT_OPTION } from "../../constants/messages";
+import { getFamiliaList } from "../../helpers/familia";
+import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
+import Select from 'react-select';
+import { getReferenciasByFamily } from "../../helpers/referencia";
 
-export default function BuscarCobranza(){
-    const [fecha, setFecha] = useState()
-    
-    
-    const formik = useFormik({
-        initialValues: {
-            familia:'',
-        },
-        validationSchema: Yup.object({
+export default function BuscarCobranza({setLoading, setAllItems}){
+    const [familiaOpt, setFamiliaOpt] = useState([]);
+    const [searchF, setSearchF] = useState(null)
+
+    const fetchFamiliasApi = async () => {
+        try {
+            const response = await getFamiliaList();
+            if(response.length > 0){
+                setFamiliaOpt(response.map(fm=>({label: `${fm.apellidoPaterno} ${fm.apellidoMaterno}`, value: fm.id, codigo: fm.codigo})))
+            }else{
+                setFamiliaOpt([])
+            }
             
-        }),
-        onSubmit: (values) => {
-            //validaciones antes de enviarlo
-            console.log(values)
-           
-            //service here
-            // try {
-            //     async function savePartnerApi() {
-            //         let response = await savePartner(values)
-            //         if(response.state){
-            //             toast.success("Actualizado correctamente");
-            //             setReloadPartner(true)
-            //             setShowForm(false)
-            //         }else{
-            //             toast.error(ERROR_SERVER);
-            //         }
-            //     }
-            //     savePartnerApi()
-            // }catch(error) {
-            //     toast.error(ERROR_SERVER); 
-            // }
+        } catch (error) {
+            let message  = ERROR_SERVER;
+            message = extractMeaningfulMessage(error, message)
+            toast.error(message);
+            setFamiliaOpt([])
+        } 
+    }
+
+    useEffect(() => {
+        fetchFamiliasApi();
+    }, [])
+
+    const buscar = async () => {
+        setLoading(true)
+        try {
+          const response = await getReferenciasByFamily(searchF.codigo)
+          if(response.length > 0){
+              //setItems(response[0]?.referencias ?? [])
+              setAllItems(response)
+              //setIndex(response[0]?.colegio ?? -1)
+          }
+          setLoading(false)
+        } catch (error) {
+            let message  = ERROR_SERVER;
+            message = extractMeaningfulMessage(error, message)
+            toast.error(message);
+            setAllItems([])
+            setLoading(false)
         }
-    });
+    }
 
     return(
-        <Form
-            className="needs-validation"
-            id="tooltipForm"
-            onSubmit={(e) => {
-                e.preventDefault();
-                formik.handleSubmit();
-                return false;
-            }}
-        >
-            <Row>
-                <Col xs="12" md="3">
-                    <Label className="mb-0">Colegio</Label>
-                    <input className="form-control" list="datalistOptions" placeholder="Buscar..." />
-                      <datalist id="datalistOptions">
-                        <option value="Colegio 1" />
-                        <option value="Colegio 2" />
-                        <option value="Colegio 3" />
-                        <option value="Colegio 4" />
-                        <option value="Colegio 5" />
-                      </datalist>
-                </Col>
-                <Col xs="12" md="4">
-                    <Label className="mb-0">Inicio a Fin</Label>
-                    <SimpleDate 
-                        date={fecha}
-                        setDate={value=>setFecha(value)}
-                        options={{
-                            mode: "range"
-                        }}
-                        placeholder="dd-MM-YYYY a dd-MM-YYYY"
-                    />
-                </Col>
-                <Col xs="12" md="2">
-                    <Label htmlFor="familia" className="mb-0">Familia</Label>
-                    <Input
-                        id="familia"
-                        name="familia"
-                        className={`form-control ${formik.errors.familia ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.familia}  
-                    />
-                </Col>
-                <Col xs="12" md="2">
-                    <Label className="opacity-0 mb-0 d-block">Fecha de registro</Label>
-                    <Button
-                        color="primary"
-                        type="submit"
-                    >Buscar
-                    </Button>
-                </Col>
-            </Row>
-        </Form>
+        <Row>
+            <Col xs="12" md="3">
+                <Label htmlFor="familia" className="mb-0">Familia</Label>
+                <Select 
+                    classNamePrefix="select2-selection"
+                    placeholder={SELECT_OPTION}
+                    options={familiaOpt} 
+                    value={searchF}
+                    onChange={value=>setSearchF(value)}
+                    isClearable
+                />
+            </Col>
+            <Col xs="12" md="2">
+                <Label className="opacity-0 mb-0 d-block">Fecha de registro</Label>
+                <Button
+                    color="primary"
+                    type="submit"
+                    disabled={!searchF}
+                    onClick={buscar}
+                >Buscar
+                </Button>
+            </Col>
+        </Row>
         
     )
 }

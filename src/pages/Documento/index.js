@@ -19,7 +19,6 @@ import moment from "moment";
 function Documento(){  
     const [loading, setLoading] = useState(false)
     const [items, setItems] = useState([]);
-    const [searchBy, setSearchBy] = useState('')
     const [searchF, setSearchF] = useState(null)
     const [familiaOpt, setFamiliaOpt] = useState([]);
 
@@ -73,7 +72,7 @@ function Documento(){
         <>
             <Row className="mt-2">
                 <Col>
-                    <GenerarReferencia />
+                    <GenerarReferencia setItems={setItems}/>
                 </Col>
             </Row>
         </>
@@ -87,13 +86,13 @@ function Documento(){
             setItems(response[0]?.referencias ?? [])
         }
         setLoading(false)
-    } catch (error) {
-      let message  = ERROR_SERVER;
-      message = extractMeaningfulMessage(error, message)
-      toast.error(message);
-      setItems([])
-      setLoading(false)
-    }
+      } catch (error) {
+        let message  = ERROR_SERVER;
+        message = extractMeaningfulMessage(error, message)
+        toast.error(message);
+        setItems([])
+        setLoading(false)
+      }
     }
 
     const cardHandleList = (

@@ -12,13 +12,14 @@ import { getColegiosList } from "../../helpers/colegios";
 import { getCiclosByColegio } from "../../helpers/ciclos";
 import SubmitingForm from "../Loader/SubmitingForm";
 
-export default function GenerarReferencia(){
+export default function GenerarReferencia({setItems}){
     const [familiaOBj, setFamiliaObj] = useState(null)
     const [familiaOpt, setFamiliaOpt] = useState([]);
     const [colegioOBj, setColegioObj] = useState(null)
     const [colegioOpt, setColegioOpt] = useState([]);
     const [showLoad, setShowLoad] = useState(false)
     const [isSubmit, setIsSubmit] = useState(false);
+    const [textColegio, setTextColegio] = useState(FIELD_REQUIRED)
     
 
     const fetchColegios = async () => {
@@ -59,12 +60,11 @@ export default function GenerarReferencia(){
         },
         validationSchema: Yup.object({
             familia: Yup.string().required(FIELD_REQUIRED), 
-            ciclo: Yup.string().required(FIELD_REQUIRED),           
+            ciclo: Yup.string().required(textColegio),           
         }),
         onSubmit: (values) => {
-            setIsSubmit(true)
-            //validaciones antes de enviarlo
-            console.log(values)           
+            setItems([])
+            setIsSubmit(true)      
             //service here
             const urlPlus = `/${values.ciclo}/${values.familia}`
             async function callApi() {
@@ -79,7 +79,6 @@ export default function GenerarReferencia(){
                     }
                     setIsSubmit(false)
                 } catch (error) {
-                    console.log(error)
                     let message  = ERROR_SERVER;
                     message = extractMeaningfulMessage(error, message)
                     toast.error(message); 
@@ -106,6 +105,7 @@ export default function GenerarReferencia(){
     }  
 
     const fetchCiclosByColegio = async (value) => {
+        setTextColegio('Procesando información')
         setShowLoad(true)
         try {
             const q = `${value.value}?PageNumber=1&PageSize=100`
@@ -113,9 +113,10 @@ export default function GenerarReferencia(){
             if(response.data.length > 0){
                 const result = response.data[0]
                 formik.setFieldValue('ciclo', result.id)
-                console.log(result)
+                setTextColegio(FIELD_REQUIRED)
             }else{
                 formik.setFieldValue('ciclo', '')
+                setTextColegio(FIELD_REQUIRED)
             }
             setShowLoad(false)
         } catch (error) {
@@ -170,7 +171,7 @@ export default function GenerarReferencia(){
                     />             
                     {
                         formik.errors.ciclo &&
-                        <div className="invalid-tooltip d-block">{formik.errors.ciclo}</div>
+                        <div className="invalid-tooltip d-block">{textColegio}</div>
                     }                
                 </Col>
                 
