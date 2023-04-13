@@ -87,7 +87,7 @@ function Cobranza(){
                     width: '10%'
                 }         
             }        
-        ];
+    ];
 
     const onHandlePayment = async (row) => {
         setShowLoad(true)

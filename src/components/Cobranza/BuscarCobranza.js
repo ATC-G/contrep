@@ -32,14 +32,18 @@ export default function BuscarCobranza({setLoading, setAllItems}){
         fetchFamiliasApi();
     }, [])
 
+    useEffect(() => {
+        if(!searchF){
+            setAllItems([])
+        }
+    }, [searchF])
+
     const buscar = async () => {
         setLoading(true)
         try {
           const response = await getReferenciasByFamily(searchF.codigo)
           if(response.length > 0){
-              //setItems(response[0]?.referencias ?? [])
               setAllItems(response)
-              //setIndex(response[0]?.colegio ?? -1)
           }
           setLoading(false)
         } catch (error) {
@@ -54,7 +58,7 @@ export default function BuscarCobranza({setLoading, setAllItems}){
     return(
         <Row>
             <Col xs="12" md="3">
-                <Label htmlFor="familia" className="mb-0">Familia</Label>
+                <Label htmlFor="familia" className="mb-0">Buscar por Familia</Label>
                 <Select 
                     classNamePrefix="select2-selection"
                     placeholder={SELECT_OPTION}

@@ -1,8 +1,8 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useState } from "react";
 import { withRouter } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Button, Col, Container, InputGroup, Row } from "reactstrap";
+import { Button, Col, Container, InputGroup, Label, Row } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import CardBasic from "../../components/Common/CardBasic";
 import GenerarReferencia from "../../components/Documento/GenerarReferencia";
@@ -15,37 +15,86 @@ import Select from 'react-select';
 import { getReferenciasByFamily } from "../../helpers/referencia";
 import { numberFormat } from "../../utils/numberFormat";
 import moment from "moment";
+import { getColegiosList } from "../../helpers/colegios";
 
 function Documento(){  
     const [loading, setLoading] = useState(false)
+    const [allItems, setAllItems] = useState([])
+    const [colegioSelected, setColegioSelected] = useState(null)
     const [items, setItems] = useState([]);
     const [searchF, setSearchF] = useState(null)
     const [familiaOpt, setFamiliaOpt] = useState([]);
+    const [colegioOpt, setColegioOpt] = useState([])
 
-    const columns = useMemo(
-        () => [
-          {
-            Header: 'Mes',
-            accessor: 'mes', // accessor is the "key" in the data
-            Cell: ({row}) => <strong>{`${row.values.mes !== 'N/A' ? row.values.mes : ''} ${row.original.year > 0 ? row.original.year : ''}`}</strong>,
-          },
-          {
-            Header: 'Concepto de pago',
-            accessor: 'referenciaBancaria',
-          },
-          {
-            Header: 'Monto',
-            accessor: 'monto',
-            Cell: ({row}) => numberFormat(row.values.monto),
-          },
-          {
-            Header: 'Fecha límite de pago',
-            accessor: 'fechaLimite',
-            Cell: ({row}) => moment(row.values.fechaLimite, 'YYYY-MM-DD').format('DD/MM/YYYY'),
-          },
-        ],
-        []
-    );
+    const columns = [
+        {
+          Header: 'Mes',
+          accessor: 'mes', // accessor is the "key" in the data
+          Cell: ({row}) => <strong>{`${row.values.mes !== 'N/A' ? row.values.mes : ''} ${(row.original.year > 0 && !row.original.anual) ? row.original.year : ''}`}</strong>,
+        },
+        {
+          Header: 'Concepto de pago',
+          accessor: 'referenciaBancaria',
+          Cell: ({row}) => (
+            <ul className="list-unstyled">
+              {row.original.referenciaBancaria.map((rB, idx) => (
+                <li key={`referenciaBancaria-${idx}`}>{rB.referenciaBancaria}</li>
+              ))}
+            </ul>            
+          )
+        },
+        {
+          Header: 'Monto',
+          accessor: 'monto',
+          Cell: ({row}) => (
+            <ul className="list-unstyled">
+              {row.original.monto.map((mt, idx) => (
+                <li key={`monto-${idx}`}>{numberFormat(mt.monto)}</li>
+              ))}
+            </ul>            
+          ),
+        },
+        {
+          Header: 'Fecha límite de pago',
+          accessor: 'fechaLimite',
+          Cell: ({row}) => (
+            <ul className="list-unstyled">
+              {row.original.fechaLimite.map((f, idx) => (
+                <li key={`fechaLimite-${idx}`}>{moment(f.fechaLimite, 'YYYY-MM-DD').format('DD/MM/YYYY')}</li>
+              ))}
+            </ul>            
+          ),
+        },
+    ]
+
+    const fetchColegios = async () => {
+      try {
+          const response = await getColegiosList();
+          setColegioOpt(response.map(r=>({id: r.id, name: r.nombre})))
+      } catch (error) {
+          console.log(error)
+      }
+    }
+
+    useEffect(() => {
+      if(allItems.length > 0){
+          setColegioSelected(allItems[0].colegio)
+          const currentRefs = [...allItems[0].referencias];
+          setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
+            {
+              mes: rf.mes,
+              year: rf.year,
+              anual: rf.anual,
+              referenciaBancaria: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({referenciaBancaria : it.referenciaBancaria})),
+              monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
+              fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
+            }
+          )))  
+      }else{
+          setItems([])
+          setColegioSelected(null)
+      }
+  }, [allItems])
 
     const fetchFamiliasApi = async () => {
       try {
@@ -66,6 +115,7 @@ function Documento(){
 
     useEffect(() => {
       fetchFamiliasApi();
+      fetchColegios()
     }, [])
     
     const cardChildren = (
@@ -83,7 +133,7 @@ function Documento(){
       try {
         const response = await getReferenciasByFamily(searchF.codigo)
         if(response.length > 0){
-            setItems(response[0]?.referencias ?? [])
+            setAllItems(response)        
         }
         setLoading(false)
       } catch (error) {
@@ -95,11 +145,27 @@ function Documento(){
       }
     }
 
+    const changeColegio = (idColegio) => {
+      setColegioSelected(idColegio)
+      const currentRefs = [...allItems.filter(it=>it.colegio===idColegio)[0].referencias];
+      setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
+        {
+          mes: rf.mes,
+          year: rf.year,
+          anual: rf.anual,
+          referenciaBancaria: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({referenciaBancaria : it.referenciaBancaria})),
+          monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
+          fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
+        }
+      )))
+      setItems(currentRefs);
+  }
+
     const cardHandleList = (
       <>
-        <div className="d-flex justify-content-end">
-            <div className="mb-1">
-              <InputGroup>
+        <Row>
+            <Col xs="12" md="3">
+                <Label htmlFor="familia" className="mb-0">Buscar por Familia</Label>
                 <Select 
                     classNamePrefix="select2-selection"
                     placeholder={SELECT_OPTION}
@@ -107,17 +173,35 @@ function Documento(){
                     value={searchF}
                     onChange={value=>setSearchF(value)}
                     isClearable
-                /> 
-                <div
-                  className="input-group-append"
-                >
-                  <Button type="button" color="primary" onClick={buscar} disabled={!searchF}>
-                    <i className="bx bx-search-alt-2" />
-                  </Button>
-                </div>
-              </InputGroup>
-            </div>
-        </div>
+                />
+            </Col>
+            <Col xs="12" md="2">
+                <Label className="opacity-0 mb-0 d-block">Fecha de registro</Label>
+                <Button
+                    color="primary"
+                    type="submit"
+                    disabled={!searchF}
+                    onClick={buscar}
+                >Buscar
+                </Button>
+            </Col>
+        </Row>
+        
+        {!loading && 
+          <div className="d-flex my-2">
+            {
+                allItems.map((it, idx) => (
+                    <div key={it.id} className="pe-2">
+                        <span 
+                            className={`badge fs-6 ${it.colegio === colegioSelected ? 'bg-info' : 'bg-light'} cursor-pointer`}
+                            onClick={e=>changeColegio(it.colegio)}
+                        >
+                            {colegioOpt.find(c=>c.id===it.colegio)?.name ??  `Colegio-${idx+1}`}
+                        </span>
+                    </div>       
+                ))
+            }
+          </div>}
         {
           loading ?
           <Row>

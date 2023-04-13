@@ -110,9 +110,9 @@ function Sidebar(){
                           <li>
                             <Link to="/alumnos">Listado</Link>
                           </li>
-                          <li>
+                          {/* <li>
                             <Link to="/alumnos/carga-masiva">Carga masiva</Link>
-                          </li>
+                          </li> */}
                         </ul>
                       </li>
                       <li>
