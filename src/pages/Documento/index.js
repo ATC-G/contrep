@@ -158,7 +158,7 @@ function Documento(){
           fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
         }
       )))
-      setItems(currentRefs);
+      //setItems(currentRefs);
   }
 
     const cardHandleList = (

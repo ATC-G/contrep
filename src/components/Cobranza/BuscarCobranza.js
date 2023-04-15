@@ -7,7 +7,7 @@ import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import Select from 'react-select';
 import { getReferenciasByFamily } from "../../helpers/referencia";
 
-export default function BuscarCobranza({setLoading, setAllItems}){
+export default function BuscarCobranza({setLoading, setAllItems, reload, setReload}){
     const [familiaOpt, setFamiliaOpt] = useState([]);
     const [searchF, setSearchF] = useState(null)
 
@@ -31,6 +31,13 @@ export default function BuscarCobranza({setLoading, setAllItems}){
     useEffect(() => {
         fetchFamiliasApi();
     }, [])
+
+    useEffect(() => {
+        if(reload){
+            buscar()
+            setReload(false)
+        }
+    },[reload])
 
     useEffect(() => {
         if(!searchF){

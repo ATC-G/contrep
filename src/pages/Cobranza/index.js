@@ -21,6 +21,8 @@ function Cobranza(){
     const [items, setItems] = useState([]);
     const [colegioOpt, setColegioOpt] = useState([])
     const [showLoad, setShowLoad] = useState(false)
+    const [reload, setReload] = useState(false)
+    const [isAnualidadPagada, setIsAnualidadPagada] = useState(false)
 
     const fetchColegios = async () => {
         try {
@@ -34,18 +36,32 @@ function Cobranza(){
     useEffect(() => {
         if(allItems.length > 0){
             setColegioSelected(allItems[0].colegio)
-            setItems(allItems[0].referencias) 
+            const currentRefs = [...allItems[0].referencias];
+            if(currentRefs.some(cf=>cf.anual && cf.estatus==='pagada')){
+                setIsAnualidadPagada(true)
+            }
+            setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
+                {
+                  mes: rf.mes,
+                  year: rf.year,
+                  anual: rf.anual,
+                  referenciaBancaria: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({referenciaBancaria : it.referenciaBancaria})),
+                  monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
+                  fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
+                  estatus: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({estatus : it.estatus})),
+                }
+              )))
+            //setItems(allItems[0].referencias) 
         }else{
             setItems([])
             setColegioSelected(null)
         }
     }, [allItems])
-
     const columns =[
             {
                 Header: 'Mes',
                 accessor: 'mes', // accessor is the "key" in the data
-                Cell: ({row}) => <strong>{`${row.values.mes !== 'N/A' ? row.values.mes : ''} ${row.original.year > 0 ? row.original.year : ''}`}</strong>,
+                Cell: ({row}) => <strong>{`${row.values.mes !== 'N/A' ? row.values.mes : ''} ${(row.original.year > 0 && !row.original.anual) ? row.original.year : ''}`}</strong>,
                 style: {
                     width: '20%'
                 }
@@ -53,14 +69,27 @@ function Cobranza(){
             {
                 Header: 'Concepto de pago',
                 accessor: 'referenciaBancaria',
+                Cell: ({row}) => (
+                    <ul className="list-unstyled">
+                      {row.original.referenciaBancaria.map((rB, idx) => (
+                        <li key={`referenciaBancaria-${idx}`}>{rB.referenciaBancaria}</li>
+                      ))}
+                    </ul>            
+                ),
                 style: {
-                    width: '30%'
+                    width: '35%'
                 }
             },
             {
                 Header: 'Monto',
                 accessor: 'monto',
-                Cell: ({row}) => numberFormat(row.values.monto),
+                Cell: ({row}) => (
+                    <ul className="list-unstyled">
+                      {row.original.monto.map((mt, idx) => (
+                        <li key={`monto-${idx}`}>{numberFormat(mt.monto)}</li>
+                      ))}
+                    </ul>            
+                ),
                 style: {
                     width: '25%'
                 }
@@ -68,7 +97,34 @@ function Cobranza(){
             {
                 Header: "Estatus",
                 accessor: "estatus",
-                Cell: ({row}) => <span className={`badge rounded-pill fs-6 fw-normal ${row.values.estatus === 'activa' ? 'bg-danger' : 'bg-success'}`}>{row.values.estatus}</span>,
+                Cell: ({row}) => (
+                    <div>
+                      {row.original.estatus.map((mt, idx) => (
+                        <span 
+                            key={`monto-${idx}`}
+                            className={`d-block my-1 badge rounded-pill fs-6 fw-normal 
+                                ${(row.original.estatus.some(s=>s.estatus === 'pagada') && mt.estatus === 'activa') ? 
+                                'bg-secondary' :
+                                (row.original.anual && 
+                                    allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
+                                'bg-secondary' :   
+                                mt.estatus === 'activa' ?
+                                'bg-danger' : 
+                                'bg-success'}`
+                            }
+                            style={{width: 'fit-content'}}
+                        >
+                            {
+                                ((row.original.estatus.some(s=>s.estatus === 'pagada') && mt.estatus === 'activa') ||
+                                (row.original.anual && 
+                                    allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada'))) ? 
+                                'N/A':
+                                mt.estatus
+                            }
+                        </span>
+                      ))}
+                    </div>            
+                ),                
                 style: {
                     width: '15%'
                 }
@@ -77,37 +133,57 @@ function Cobranza(){
                 id: 'acciones',
                 Header: "",
                 Cell: ({row}) => (
-                    <div className="d-flex">
-                        <div className="pe-2"><Button color="success" size="sm" onClick={e=>onHandlePayment(row)}>Pagar</Button></div>
-                        {/* <div className="pe-2"><Button color="warning" size="sm">Facturar</Button></div>
-                        <div className="pe-2"><Button color="info" size="sm">Enviar</Button></div> */}
-                    </div>
-                ),  
+                    <div>
+                      {row.original.estatus.map((mt, idx) => (
+                        <Button 
+                            key={`btn-pagar-${idx}`}
+                            color={`${(row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada) ? 
+                                    'secondary' : 
+                                    (row.original.anual && 
+                                        allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
+                                    'secondary' :
+                                    'success'}`
+                                } 
+                            size="sm" 
+                            className="my-1" 
+                            block
+                            disabled={row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada ||
+                            (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada'))}
+                            onClick={e=>
+                                (row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada ||
+                                (row.original.anual && 
+                                    allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada'))) ? {} :
+                                onHandlePayment(row, idx)}
+                        >
+                            Pagar
+                        </Button>
+                      ))}
+                    </div>            
+                ),
                 style: {
-                    width: '10%'
+                    width: '5%'
                 }         
             }        
     ];
-
-    const onHandlePayment = async (row) => {
+    //console.log(items)
+    const onHandlePayment = async (row, idx) => {
         setShowLoad(true)
+        //buscamos la ref bancaria que vamos a pagar
+        const ref = row.original.referenciaBancaria[idx];
         const currentItem = allItems.filter(it=>it.colegio===colegioSelected)[0];
-        const currentRow = row.original
+        const currentRow = currentItem.referencias.find(it=>it.referenciaBancaria === ref.referenciaBancaria);
         currentRow.estatus = 'pagada'
-        console.log(currentItem)
         try {
-            const response = await updateReferencias(currentItem)
-            console.log(response)
+            await updateReferencias(currentItem)
             toast.success(SUCCESS_REQUEST);
+            setReload(true)
             setShowLoad(false)
         } catch (error) {
             let message  = ERROR_SERVER;
             message = extractMeaningfulMessage(error, message)
             toast.error(message);
             setShowLoad(false)
-        }
-
-        
+        }        
     }
 
     useEffect(() => {
@@ -121,6 +197,8 @@ function Cobranza(){
                     <BuscarCobranza 
                         setLoading={setLoading}
                         setAllItems={setAllItems}
+                        reload={reload}
+                        setReload={setReload}
                     />
                 </Col>
             </Row>
@@ -129,8 +207,20 @@ function Cobranza(){
 
     const changeColegio = (idColegio) => {
         setColegioSelected(idColegio)
-        const currentRefs = allItems.filter(it=>it.colegio===idColegio)[0].referencias
-        setItems(currentRefs);
+        const currentRefs = [...allItems.filter(it=>it.colegio===idColegio)[0].referencias];
+        if(currentRefs.some(cf=>cf.anual && cf.estatus==='pagada')){
+            setIsAnualidadPagada(true)
+        }
+        setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
+            {
+                mes: rf.mes,
+                year: rf.year,
+                anual: rf.anual,
+                referenciaBancaria: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({referenciaBancaria : it.referenciaBancaria})),
+                monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
+                fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
+            }
+        )))
     }
 
     const cardHandleList = (
