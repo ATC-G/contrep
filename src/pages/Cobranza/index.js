@@ -105,8 +105,9 @@ function Cobranza(){
                             className={`d-block my-1 badge rounded-pill fs-6 fw-normal 
                                 ${(row.original.estatus.some(s=>s.estatus === 'pagada') && mt.estatus === 'activa') ? 
                                 'bg-secondary' :
-                                (row.original.anual && 
-                                    allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
+                                (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
+                                'bg-secondary' :   
+                                (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada')) ?
                                 'bg-secondary' :   
                                 mt.estatus === 'activa' ?
                                 'bg-danger' : 
@@ -115,9 +116,11 @@ function Cobranza(){
                             style={{width: 'fit-content'}}
                         >
                             {
-                                ((row.original.estatus.some(s=>s.estatus === 'pagada') && mt.estatus === 'activa') ||
-                                (row.original.anual && 
-                                    allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada'))) ? 
+                                (
+                                    (row.original.estatus.some(s=>s.estatus === 'pagada') && mt.estatus === 'activa') ||
+                                    (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
+                                    (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))
+                                ) ? 
                                 'N/A':
                                 mt.estatus
                             }
@@ -139,8 +142,9 @@ function Cobranza(){
                             key={`btn-pagar-${idx}`}
                             color={`${(row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada) ? 
                                     'secondary' : 
-                                    (row.original.anual && 
-                                        allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
+                                    (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
+                                    'secondary' :
+                                    (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada')) ?
                                     'secondary' :
                                     'success'}`
                                 } 
@@ -148,11 +152,13 @@ function Cobranza(){
                             className="my-1" 
                             block
                             disabled={row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada ||
-                            (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada'))}
+                                     (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
+                                     (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))
+                                    }
                             onClick={e=>
                                 (row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada ||
-                                (row.original.anual && 
-                                    allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada'))) ? {} :
+                                (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
+                                (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))) ? {} :
                                 onHandlePayment(row, idx)}
                         >
                             Pagar
