@@ -133,30 +133,6 @@ function Sidebar(){
                             <span>Ciclo escolar</span>
                         </Link> 
                       </li>
-                      {/* <li> 
-                        <Link to="/concepto" className="">
-                            <i className="bx bx-list-ul"></i>
-                            <span>Conceptos</span>
-                        </Link> 
-                      </li> */}
-                      {/* <li>
-                        <Link to="/configuracion" className="">
-                            <i className="bx bx-cog"></i>
-                            <span>Configuración</span>
-                        </Link>  
-                      </li>                      
-                      <li> 
-                        <Link to="/colegiatura" className="">
-                            <i className="bx bx-question-mark"></i>
-                            <span>Colegiatura</span>
-                        </Link> 
-                      </li>
-                      <li>
-                        <Link to="/pagos" className="">
-                            <i className="bx bx-question-mark"></i>
-                            <span>Pasarela de pagos</span>
-                        </Link>           
-                      </li>                         */}
                       
 
                       {userLogued?.Role?.name === 'ADMINISTRADOR' &&
@@ -177,9 +153,9 @@ function Sidebar(){
                             <span>Catálogos</span>
                         </Link>
                         <ul className="sub-menu">
-                          <li>
+                          {/* <li>
                             <Link to="/familias">Familias</Link>
-                          </li>
+                          </li> */}
                           <li> 
                             <Link to="/colegios" className="">Colegios</Link> 
                           </li>

@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import { Col, Container, Row } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import CardBasic from "../../components/Common/CardBasic";
-import FormFamilia from "../../components/Familia/FormFamilia";
 import SimpleLoad from "../../components/Loader/SimpleLoad";
 import FormRazonSocial from "../../components/RazonSocial/FormRazonSocial";
 import CellActions from "../../components/Tables/CellActions";
@@ -22,7 +21,6 @@ function RazonSocial(){
     const [totalRegistros, setTotalRegistros]   =useState(10)
     const [reload, setReload] = useState(false);
     const [openAccordion, setOpenAccordion] = useState(false)
-    const [searchBy, setSearchBy] = useState('')
     const [query, setQuery] = useState({
       PageNumber: 0,
       PageSize: totalRegistros
@@ -33,7 +31,6 @@ function RazonSocial(){
         let q = Object.keys(query).map(key=>`${key}=${query[key]}`).join("&")
         try {
             const response = await getRazonSocialQuery(`?${q}`);
-            console.log(response)
             setItems(response.data)
             setTotalPaginas(response.totalPages)
             setTotalRegistros(response.totalRecords)

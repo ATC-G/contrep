@@ -5,7 +5,6 @@ import * as Yup from "yup";
 import { CAMPO_MAYOR_CERO, CAMPO_MENOR_CIEN, ERROR_SERVER, FIELD_EMAIL, FIELD_NUMERIC, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION, UPDATE_SUCCESS } from "../../constants/messages";
 import Select from 'react-select';
 import { getRazonSocialQuery } from "../../helpers/razonsocial";
-import { getFamiliaList } from "../../helpers/familia";
 import { getColegiosList } from "../../helpers/colegios";
 import { saveAlumnos, updateAlumnos } from "../../helpers/alumnos";
 import { toast } from "react-toastify";
@@ -16,8 +15,6 @@ export default function FormAlumnos({item, setItem, setReloadList}){
     const [isSubmit, setIsSubmit] = useState(false);
     const [colegioOBj, setColegioObj] = useState(null)
     const [colegioOpt, setColegioOpt] = useState([])
-    const [familiaOBj, setFamiliaObj] = useState(null)
-    const [familiaOpt, setFamiliaOpt] = useState([])
     const [razonSocialOBj, setRazonSocialObj] = useState(null)
     const [razonSocialOpt, setRazonSocialOpt] = useState([])
 
@@ -28,7 +25,6 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             nombre: item?.nombre ?? '',
             curp: item?.curp ?? '',
             colegio: item?.colegio ?? '',
-            familia: item?.familia ?? '',
             email: item?.email ?? '',
             telefono: item?.telefono ?? '',
             grado: item?.grado ?? '',
@@ -41,7 +37,6 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             nombre: Yup.string().required(FIELD_REQUIRED), 
             curp: Yup.string().required(FIELD_REQUIRED),
             colegio: Yup.string().required(FIELD_REQUIRED),
-            familia: Yup.string().required(FIELD_REQUIRED),
             email: Yup.string().email(FIELD_EMAIL).required(FIELD_REQUIRED),
             telefono: Yup.string().required(FIELD_REQUIRED),
             grado: Yup.string().required(FIELD_REQUIRED),
@@ -99,19 +94,10 @@ export default function FormAlumnos({item, setItem, setReloadList}){
     const resetForm = () => {
         setItem(null)
         setColegioObj(null)
-        setFamiliaObj(null)
         setRazonSocialObj(null)
         formik.resetForm();
     }
 
-    const handleChangeFamilia = value => {
-        setFamiliaObj(value);
-        if(value){
-            formik.setFieldValue('familia', value.codigo)
-        }else{
-            formik.setFieldValue('familia', '')
-        }        
-    }
     const handleChangeColegio= value => {
         setColegioObj(value);
         if(value){
@@ -142,20 +128,7 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             setRazonSocialOpt([])
         } 
     }
-    const fetchFamiliasApi = async () => {
-        try {
-            const response = await getFamiliaList();
-            if(response.length > 0){
-                setFamiliaOpt(response.map(fm=>({label: `${fm.apellidoPaterno} ${fm.apellidoMaterno}`, value: fm.id, codigo: fm.codigo})))
-            }else{
-                setFamiliaOpt([])
-            }
-            
-        } catch (error) {
-            console.log(error)
-            setFamiliaOpt([])
-        } 
-    }
+
     const fetchColegios = async () => {
         try {
             const response = await getColegiosList();
@@ -166,7 +139,6 @@ export default function FormAlumnos({item, setItem, setReloadList}){
     }
     useEffect(() => {
         fetchRazonSocialListPaginadoApi()
-        fetchFamiliasApi()
         fetchColegios()
     }, [])
     
@@ -177,8 +149,7 @@ export default function FormAlumnos({item, setItem, setReloadList}){
     
     //fill out the selects obj
     useEffect(() => {
-        if(item){
-            setFamiliaObj({value: item.familia, label: familiaOpt.find(f=>f.codigo===item.familia)?.label})
+        if(item){            
             setColegioObj({value: item.colegio, label: colegioOpt.find(c=>c.codigo===item.colegio)?.label})
         }
     },[item])
@@ -235,22 +206,7 @@ export default function FormAlumnos({item, setItem, setReloadList}){
                 </Col>               
             </Row>
             
-            <Row className="py-4">
-                <Col xs="12" md="2">
-                    <Label htmlFor="familia" className="mb-0">Familia</Label>
-                    <Select 
-                        classNamePrefix="select2-selection"
-                        placeholder={SELECT_OPTION}
-                        options={familiaOpt} 
-                        value={familiaOBj}
-                        onChange={handleChangeFamilia}
-                        isClearable
-                    />
-                    {
-                        formik.errors.familia &&
-                        <div className="invalid-tooltip d-block">{formik.errors.familia}</div>
-                    }
-                </Col>
+            <Row className="py-4">                
                 <Col xs="12" md="2">
                     <Label htmlFor="colegio" className="mb-0">Colegio</Label>
                     <Select 

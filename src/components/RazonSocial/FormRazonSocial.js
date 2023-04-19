@@ -22,7 +22,10 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             rfc:item?.rfc ?? '',   
             regimen:item?.regimen ?? '',
             codigoPostal:item?.codigoPostal ?? '',
-            tipo:item?.tipo ?? '',     
+            tipo:item?.tipo ?? '',  
+            codigo: item?.codigo ?? '',
+            apellidoPaterno:item?.apellidoPaterno ?? '',   
+            apellidoMaterno:item?.apellidoMaterno ?? '',   
         },
         validationSchema: Yup.object({
             nombre: Yup.string().required(FIELD_REQUIRED),
@@ -30,6 +33,9 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             regimen: Yup.string().required(FIELD_REQUIRED),
             codigoPostal: Yup.string().required(FIELD_REQUIRED),
             tipo: Yup.string().required(FIELD_REQUIRED),
+            codigo: Yup.string().required(FIELD_REQUIRED),
+            apellidoPaterno: Yup.string().required(FIELD_REQUIRED),
+            apellidoMaterno: Yup.string().required(FIELD_REQUIRED),
         }),
         onSubmit: async (values) => {
             setIsSubmit(true)
@@ -101,81 +107,130 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             {isSubmit && <SubmitingForm />}
             {formik.values.cardCode && <div className="d-flex justify-content-end">{formik.values.cardCode}</div>}
             <Row>
-                <Col xs="12" md="4">
-                    <Label htmlFor="nombre" className="mb-0">Nombre</Label>
-                    <Input
-                        id="nombre"
-                        name="nombre"
-                        className={`form-control ${formik.errors.nombre ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.nombre}  
-                    />
-                    {
-                        formik.errors.nombre &&
-                        <div className="invalid-tooltip">{formik.errors.nombre}</div>
-                    }
+                <Col xs="12" md="6">
+                    <Row>
+                        <Col xs="12" md="12">
+                            <Label htmlFor="nombre" className="mb-0">Razón Social</Label>
+                            <Input
+                                id="nombre"
+                                name="nombre"
+                                className={`form-control ${formik.errors.nombre ? 'is-invalid' : ''}`}
+                                onChange={formik.handleChange}
+                                value={formik.values.nombre}  
+                            />
+                            {
+                                formik.errors.nombre &&
+                                <div className="invalid-tooltip">{formik.errors.nombre}</div>
+                            }
+                        </Col>
+                        <Col xs="12" md="6">
+                            <Label htmlFor="rfc" className="mb-0">RFC</Label>
+                            <Input
+                                id="rfc"
+                                name="rfc"
+                                className={`form-control ${formik.errors.rfc ? 'is-invalid' : ''}`}
+                                onChange={formik.handleChange}
+                                value={formik.values.rfc}  
+                            />
+                            {
+                            formik.errors.rfc &&
+                                <div className="invalid-tooltip">{formik.errors.rfc}</div>
+                            }
+                        </Col>
+                        <Col xs="12" md="6">
+                            <Label htmlFor="regimen" className="mb-0">Régimen</Label>
+                            <Input
+                                id="regimen"
+                                name="regimen"
+                                className={`form-control ${formik.errors.regimen ? 'is-invalid' : ''}`}
+                                onChange={formik.handleChange}
+                                value={formik.values.regimen}  
+                            />
+                            {
+                            formik.errors.regimen &&
+                                <div className="invalid-tooltip">{formik.errors.regimen}</div>
+                            }
+                        </Col>
+                        <Col xs="12" md="6">
+                            <Label htmlFor="codigoPostal" className="mb-0">Código postal</Label>
+                            <Input
+                                id="codigoPostal"
+                                name="codigoPostal"
+                                className={`form-control ${formik.errors.codigoPostal ? 'is-invalid' : ''}`}
+                                onChange={formik.handleChange}
+                                value={formik.values.codigoPostal}  
+                            />
+                            {
+                            formik.errors.codigoPostal &&
+                                <div className="invalid-tooltip">{formik.errors.codigoPostal}</div>
+                            }
+                        </Col>
+                        <Col xs="12" md="6">
+                            <Label htmlFor="tipo" className="mb-0">Tipo</Label>
+                            <Select 
+                                classNamePrefix="select2-selection"
+                                placeholder={SELECT_OPTION}
+                                options={[{value: 'Fisica', label: 'Física'}, {value: 'Moral', label: 'Moral'}]} 
+                                value={tipoObj}
+                                onChange={handleChange}
+                                isClearable
+                            />
+                            {console.log(formik.errors)}
+                            {
+                            formik.errors.tipo &&
+                                <div className="invalid-tooltip d-block">{formik.errors.tipo}</div>
+                            }
+                        </Col>
+                    </Row>
                 </Col>
-                <Col xs="12" md="3">
-                    <Label htmlFor="rfc" className="mb-0">RFC</Label>
-                    <Input
-                        id="rfc"
-                        name="rfc"
-                        className={`form-control ${formik.errors.rfc ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.rfc}  
-                    />
-                    {
-                       formik.errors.rfc &&
-                        <div className="invalid-tooltip">{formik.errors.rfc}</div>
-                    }
+                <Col xs="12" md="6">
+                    <Row>
+                        <Col xs="12" md="12">
+                            <Label htmlFor="codigo" className="mb-0">Código Familia</Label>
+                            <Input
+                                id="codigo"
+                                name="codigo"
+                                className={`form-control ${formik.errors.codigo ? 'is-invalid' : ''}`}
+                                onChange={formik.handleChange}
+                                value={formik.values.codigo}  
+                            />
+                            {
+                                formik.errors.codigo &&
+                                <div className="invalid-tooltip">{formik.errors.codigo}</div>
+                            }
+                        </Col>
+                        <Col xs="12" md="6">
+                            <Label htmlFor="apellidoPaterno" className="mb-0">Apellido paterno</Label>
+                            <Input
+                                id="apellidoPaterno"
+                                name="apellidoPaterno"
+                                className={`form-control ${formik.errors.apellidoPaterno ? 'is-invalid' : ''}`}
+                                onChange={formik.handleChange}
+                                value={formik.values.apellidoPaterno}  
+                            />
+                            {
+                            formik.errors.apellidoPaterno &&
+                                <div className="invalid-tooltip">{formik.errors.apellidoPaterno}</div>
+                            }
+                        </Col>
+                        <Col xs="12" md="6">
+                            <Label htmlFor="apellidoMaterno" className="mb-0">Apellido materno</Label>
+                            <Input
+                                id="apellidoMaterno"
+                                name="apellidoMaterno"
+                                className={`form-control ${formik.errors.apellidoMaterno ? 'is-invalid' : ''}`}
+                                onChange={formik.handleChange}
+                                value={formik.values.apellidoMaterno}  
+                            />
+                            {
+                            formik.errors.apellidoMaterno &&
+                                <div className="invalid-tooltip">{formik.errors.apellidoMaterno}</div>
+                            }
+                        </Col>
+                    </Row>
+                    
                 </Col>
-                <Col xs="12" md="3">
-                    <Label htmlFor="regimen" className="mb-0">Régimen</Label>
-                    <Input
-                        id="regimen"
-                        name="regimen"
-                        className={`form-control ${formik.errors.regimen ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.regimen}  
-                    />
-                    {
-                       formik.errors.regimen &&
-                        <div className="invalid-tooltip">{formik.errors.regimen}</div>
-                    }
-                </Col>
-            </Row>    
-            <Row>
-                <Col xs="12" md="2">
-                    <Label htmlFor="codigoPostal" className="mb-0">Código postal</Label>
-                    <Input
-                        id="codigoPostal"
-                        name="codigoPostal"
-                        className={`form-control ${formik.errors.codigoPostal ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.codigoPostal}  
-                    />
-                    {
-                       formik.errors.codigoPostal &&
-                        <div className="invalid-tooltip">{formik.errors.codigoPostal}</div>
-                    }
-                </Col>
-                <Col xs="12" md="2">
-                    <Label htmlFor="tipo" className="mb-0">Tipo</Label>
-                    <Select 
-                        classNamePrefix="select2-selection"
-                        placeholder={SELECT_OPTION}
-                        options={[{value: 'Fisica', label: 'Física'}, {value: 'Moral', label: 'Moral'}]} 
-                        value={tipoObj}
-                        onChange={handleChange}
-                        isClearable
-                    />
-                    {console.log(formik.errors)}
-                    {
-                       formik.errors.tipo &&
-                        <div className="invalid-tooltip d-block">{formik.errors.tipo}</div>
-                    }
-                </Col>
-            </Row>      
+            </Row>     
             <hr />
             <div className="d-flex justify-content-end">
                 <Button
