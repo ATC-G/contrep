@@ -6,30 +6,30 @@ import { getFamiliaList } from "../../helpers/familia";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import Select from 'react-select';
 import { getReferenciasByFamily } from "../../helpers/referencia";
+import { getRazonSocialQuery } from "../../helpers/razonsocial";
 
 export default function BuscarCobranza({setLoading, setAllItems, reload, setReload}){
     const [familiaOpt, setFamiliaOpt] = useState([]);
     const [searchF, setSearchF] = useState(null)
 
-    const fetchFamiliasApi = async () => {
+    const fetchRazonesSocialesApi = async () => {
         try {
-            const response = await getFamiliaList();
-            if(response.length > 0){
-                setFamiliaOpt(response.map(fm=>({label: `${fm.apellidoPaterno} ${fm.apellidoMaterno}`, value: fm.id, codigo: fm.codigo})))
+            const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
+            if(response.data.length > 0){
+                setFamiliaOpt(response.data.map(rz=>({label: `${rz.nombre}`, value: rz.id, codigo: rz.codigo})))
             }else{
                 setFamiliaOpt([])
-            }
-            
+            }        
         } catch (error) {
             let message  = ERROR_SERVER;
             message = extractMeaningfulMessage(error, message)
             toast.error(message);
             setFamiliaOpt([])
-        } 
+        }
     }
 
     useEffect(() => {
-        fetchFamiliasApi();
+        fetchRazonesSocialesApi()
     }, [])
 
     useEffect(() => {

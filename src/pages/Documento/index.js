@@ -9,13 +9,13 @@ import GenerarReferencia from "../../components/Documento/GenerarReferencia";
 import SimpleLoad from "../../components/Loader/SimpleLoad";
 import SimpleTable from "../../components/Tables/SimpleTable";
 import { ERROR_SERVER, SELECT_OPTION } from "../../constants/messages";
-import { getFamiliaList } from "../../helpers/familia";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import Select from 'react-select';
 import { getReferenciasByFamily } from "../../helpers/referencia";
 import { numberFormat } from "../../utils/numberFormat";
 import moment from "moment";
 import { getColegiosList } from "../../helpers/colegios";
+import { getRazonSocialQuery } from "../../helpers/razonsocial";
 
 function Documento(){  
     const [loading, setLoading] = useState(false)
@@ -94,28 +94,27 @@ function Documento(){
           setItems([])
           setColegioSelected(null)
       }
-  }, [allItems])
+    }, [allItems])
 
-    const fetchFamiliasApi = async () => {
+    const fetchRazonesSocialesApi = async () => {
       try {
-          const response = await getFamiliaList();
-          if(response.length > 0){
-              setFamiliaOpt(response.map(fm=>({label: `${fm.apellidoPaterno} ${fm.apellidoMaterno}`, value: fm.id, codigo: fm.codigo})))
-          }else{
-              setFamiliaOpt([])
-          }
-          
+          const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
+          if(response.data.length > 0){
+            setFamiliaOpt(response.data.map(rz=>({label: `${rz.nombre}`, value: rz.id, codigo: rz.codigo})))
+        }else{
+            setFamiliaOpt([])
+        }        
       } catch (error) {
           let message  = ERROR_SERVER;
           message = extractMeaningfulMessage(error, message)
           toast.error(message);
           setFamiliaOpt([])
-      } 
+      }
     }
 
     useEffect(() => {
-      fetchFamiliasApi();
       fetchColegios()
+      fetchRazonesSocialesApi()
     }, [])
     
     const cardChildren = (

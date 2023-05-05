@@ -31,7 +31,7 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             mensualidad: item?.mensualidad ?? '',
             beca: item?.beca ?? '',
             matricula: item?.matricula ?? '',
-            razonesSociales:item?.razonesSociales ?? [],     
+            razonSocial:item?.razonSocial ?? '', 
         },
         validationSchema: Yup.object({
             nombre: Yup.string().required(FIELD_REQUIRED), 
@@ -43,7 +43,7 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             mensualidad: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED),
             beca: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(0, CAMPO_MAYOR_CERO).max(100, CAMPO_MENOR_CIEN), 
             matricula: Yup.string().required(FIELD_REQUIRED),
-            razonesSociales: Yup.array().of(Yup.string()).min(1,FIELD_REQUIRED),            
+            razonSocial: Yup.string().required(FIELD_REQUIRED),            
         }),
         onSubmit: async (values) => {
             setIsSubmit(true)
@@ -106,20 +106,12 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             formik.setFieldValue('colegio', '')
         }        
     }
-    const addRazonSocial = () => {
-        if(razonSocialOBj){
-            if(!formik.values.razonesSociales.includes(razonSocialOBj.value)){
-                const copyRz = [...formik.values.razonesSociales];
-                copyRz.push(razonSocialOBj.value)
-                formik.setFieldValue('razonesSociales', copyRz)
-            }            
-        }
-    }
     const fetchRazonSocialListPaginadoApi = async () => {
         try {
             const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
+            console.log(response)
             if(response.data.length){
-                setRazonSocialOpt(response.data.map(rz=>({label: rz.nombre, value: rz.id})))
+                setRazonSocialOpt(response.data.map(rz=>({label: `código: ${rz.familia} - RFC: ${rz.rfc} - RZ: ${rz.nombre}`, value: rz.id})))
             }else{
                 setRazonSocialOpt([])
             }            
@@ -142,17 +134,14 @@ export default function FormAlumnos({item, setItem, setReloadList}){
         fetchColegios()
     }, [])
     
-    const deleteRazonSocial = (id) => {
-        const currentRZ = formik.values.razonesSociales.filter(rz=>rz!==id);
-        formik.setFieldValue('razonesSociales', currentRZ);
-    }
-    
     //fill out the selects obj
     useEffect(() => {
         if(item){            
             setColegioObj({value: item.colegio, label: colegioOpt.find(c=>c.codigo===item.colegio)?.label})
+            setRazonSocialObj({value: item.razonSocial, label: razonSocialOpt.find(c=>c.id===item.razonSocial)?.label})
         }
     },[item])
+    
     return(
         <Form
             className="needs-validation"
@@ -165,43 +154,26 @@ export default function FormAlumnos({item, setItem, setReloadList}){
         >
             {isSubmit && <SubmitingForm />}
             <Row>
-                <Col xs="12" md="4">
+                <Col xs="12" md="6">
                     <Label htmlFor="razonSocialCode" className="mb-0">Razón social</Label>
-                    <div className="d-flex">
-                        <div className="pe-2 flex-grow-1">
-                            <Select 
-                                classNamePrefix="select2-selection"
-                                placeholder={SELECT_OPTION}
-                                options={razonSocialOpt} 
-                                value={razonSocialOBj}
-                                onChange={value=>setRazonSocialObj(value)}
-                                isClearable
-                            />
-                        </div>
-                        <div>
-                        <Button
-                            color="primary"
-                            type="button"
-                            onClick={addRazonSocial}
-                        ><i className="bx bx-plus" />
-                        </Button>
-                        </div>
-                    </div>
-                    <ul className="bg-light">
-                        {
-                             formik.values.razonesSociales.map((rzId) => (
-                                <div className="d-flex align-items-center justify-content-between" key={rzId}>
-                                    <li>{razonSocialOpt.find(rz=>rz.value===rzId).label}</li>                                
-                                    <Button color="link" onClick={e=>deleteRazonSocial(rzId)}><i className="bx bx-trash text-danger" /></Button>
-                                </div>
-                                
-                            ))
-                        }
-                    </ul>
-                    
+                    <Select 
+                        classNamePrefix="select2-selection"
+                        placeholder={SELECT_OPTION}
+                        options={razonSocialOpt} 
+                        value={razonSocialOBj}
+                        onChange={value=>{
+                            setRazonSocialObj(value)
+                            if(value){
+                                formik.setFieldValue('razonSocial', value.value)
+                            }else{
+                                formik.setFieldValue('razonSocial', '')
+                            }
+                        }}
+                        isClearable
+                    />                    
                     {
-                        formik.errors.razonesSociales &&
-                        <div className="invalid-tooltip d-block">{formik.errors.razonesSociales}</div>
+                        formik.errors.razonSocial &&
+                        <div className="invalid-tooltip d-block">{formik.errors.razonSocial}</div>
                     }
                 </Col>               
             </Row>

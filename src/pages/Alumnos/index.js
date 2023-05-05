@@ -76,10 +76,6 @@ function Alumnos(){
           accessor: 'nombre',
         },
         {
-          Header: 'Razón social',
-          accessor: 'razonSocialId',
-        },
-        {
           Header: 'Correo electrónico',
           accessor: 'email',
         },

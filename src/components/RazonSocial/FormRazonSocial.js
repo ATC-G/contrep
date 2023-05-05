@@ -23,9 +23,11 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             regimen:item?.regimen ?? '',
             codigoPostal:item?.codigoPostal ?? '',
             tipo:item?.tipo ?? '',  
-            codigo: item?.codigo ?? '',
-            apellidoPaterno:item?.apellidoPaterno ?? '',   
-            apellidoMaterno:item?.apellidoMaterno ?? '',   
+            familia: item?.familia ?? '',
+            apellido:item?.apellido ?? '',
+            padre:  item?.padre ?? '',
+            apellidoMaterno: 'testM',
+            apellidoPaterno: 'testP'
         },
         validationSchema: Yup.object({
             nombre: Yup.string().required(FIELD_REQUIRED),
@@ -33,9 +35,9 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             regimen: Yup.string().required(FIELD_REQUIRED),
             codigoPostal: Yup.string().required(FIELD_REQUIRED),
             tipo: Yup.string().required(FIELD_REQUIRED),
-            codigo: Yup.string().required(FIELD_REQUIRED),
-            apellidoPaterno: Yup.string().required(FIELD_REQUIRED),
-            apellidoMaterno: Yup.string().required(FIELD_REQUIRED),
+            familia: Yup.string().required(FIELD_REQUIRED),
+            apellido: Yup.string().required(FIELD_REQUIRED),
+            padre: Yup.string().required(FIELD_REQUIRED),
         }),
         onSubmit: async (values) => {
             setIsSubmit(true)
@@ -186,45 +188,45 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
                 <Col xs="12" md="6">
                     <Row>
                         <Col xs="12" md="12">
-                            <Label htmlFor="codigo" className="mb-0">Código Familia</Label>
+                            <Label htmlFor="familia" className="mb-0">Código Familia</Label>
                             <Input
-                                id="codigo"
-                                name="codigo"
-                                className={`form-control ${formik.errors.codigo ? 'is-invalid' : ''}`}
+                                id="familia"
+                                name="familia"
+                                className={`form-control ${formik.errors.familia ? 'is-invalid' : ''}`}
                                 onChange={formik.handleChange}
-                                value={formik.values.codigo}  
+                                value={formik.values.familia}  
                             />
                             {
-                                formik.errors.codigo &&
-                                <div className="invalid-tooltip">{formik.errors.codigo}</div>
+                                formik.errors.familia &&
+                                <div className="invalid-tooltip">{formik.errors.familia}</div>
                             }
                         </Col>
-                        <Col xs="12" md="6">
-                            <Label htmlFor="apellidoPaterno" className="mb-0">Apellido paterno</Label>
+                        <Col xs="12" md="12">
+                            <Label htmlFor="apellido" className="mb-0">Apellido</Label>
                             <Input
-                                id="apellidoPaterno"
-                                name="apellidoPaterno"
-                                className={`form-control ${formik.errors.apellidoPaterno ? 'is-invalid' : ''}`}
+                                id="apellido"
+                                name="apellido"
+                                className={`form-control ${formik.errors.apellido ? 'is-invalid' : ''}`}
                                 onChange={formik.handleChange}
-                                value={formik.values.apellidoPaterno}  
+                                value={formik.values.apellido}  
                             />
                             {
-                            formik.errors.apellidoPaterno &&
-                                <div className="invalid-tooltip">{formik.errors.apellidoPaterno}</div>
+                            formik.errors.apellido &&
+                                <div className="invalid-tooltip">{formik.errors.apellido}</div>
                             }
                         </Col>
-                        <Col xs="12" md="6">
-                            <Label htmlFor="apellidoMaterno" className="mb-0">Apellido materno</Label>
+                        <Col xs="12" md="12">
+                            <Label htmlFor="padre" className="mb-0">Padre / Titular</Label>
                             <Input
-                                id="apellidoMaterno"
-                                name="apellidoMaterno"
-                                className={`form-control ${formik.errors.apellidoMaterno ? 'is-invalid' : ''}`}
+                                id="padre"
+                                name="padre"
+                                className={`form-control ${formik.errors.padre ? 'is-invalid' : ''}`}
                                 onChange={formik.handleChange}
-                                value={formik.values.apellidoMaterno}  
+                                value={formik.values.padre}  
                             />
                             {
-                            formik.errors.apellidoMaterno &&
-                                <div className="invalid-tooltip">{formik.errors.apellidoMaterno}</div>
+                            formik.errors.padre &&
+                                <div className="invalid-tooltip">{formik.errors.padre}</div>
                             }
                         </Col>
                     </Row>

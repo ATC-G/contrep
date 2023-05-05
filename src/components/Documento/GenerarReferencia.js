@@ -11,6 +11,7 @@ import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import { getColegiosList } from "../../helpers/colegios";
 import { getCiclosByColegio } from "../../helpers/ciclos";
 import SubmitingForm from "../Loader/SubmitingForm";
+import { getRazonSocialQuery } from "../../helpers/razonsocial";
 
 export default function GenerarReferencia({setItems}){
     const [familiaOBj, setFamiliaObj] = useState(null)
@@ -20,6 +21,8 @@ export default function GenerarReferencia({setItems}){
     const [showLoad, setShowLoad] = useState(false)
     const [isSubmit, setIsSubmit] = useState(false);
     const [textColegio, setTextColegio] = useState(FIELD_REQUIRED)
+    const [cicloObj, setCicloObj] = useState(null)
+    const [cicloOpt, setCicloOpt] = useState([]);
     
 
     const fetchColegios = async () => {
@@ -31,25 +34,24 @@ export default function GenerarReferencia({setItems}){
         }
     }
 
-    const fetchFamiliasApi = async () => {
+    const fetchRazonesSocialesApi = async () => {
         try {
-            const response = await getFamiliaList();
-            if(response.length > 0){
-                setFamiliaOpt(response.map(fm=>({label: `${fm.apellidoPaterno} ${fm.apellidoMaterno}`, value: fm.id, codigo: fm.codigo})))
+            const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
+            if(response.data.length > 0){
+                setFamiliaOpt(response.data.map(rz=>({label: `${rz.nombre}`, value: rz.id, codigo: rz.codigo})))
             }else{
                 setFamiliaOpt([])
-            }
-            
+            }        
         } catch (error) {
             let message  = ERROR_SERVER;
             message = extractMeaningfulMessage(error, message)
             toast.error(message);
             setFamiliaOpt([])
-        } 
+        }
     }
 
     useEffect(() => {
-        fetchFamiliasApi();
+        fetchRazonesSocialesApi()
         fetchColegios();
     }, [])
 
@@ -111,8 +113,8 @@ export default function GenerarReferencia({setItems}){
             const q = `${value.value}?PageNumber=1&PageSize=100`
             const response = await getCiclosByColegio(q)
             if(response.data.length > 0){
-                const result = response.data[0]
-                formik.setFieldValue('ciclo', result.id)
+                console.log(response.data)
+                //setCicloOpt(response.data)
                 setTextColegio(FIELD_REQUIRED)
             }else{
                 formik.setFieldValue('ciclo', '')
@@ -172,6 +174,28 @@ export default function GenerarReferencia({setItems}){
                     {
                         formik.errors.ciclo &&
                         <div className="invalid-tooltip d-block">{textColegio}</div>
+                    }                
+                </Col>
+                <Col xs="12" md="3">
+                    <Label htmlFor="ciclo" className="mb-0">Ciclo</Label>
+                    <Select 
+                        classNamePrefix="select2-selection"
+                        placeholder={SELECT_OPTION}
+                        options={cicloOpt} 
+                        value={cicloObj}
+                        onChange={value=>{
+                            setCicloObj(value)
+                            if(value){
+                                formik.setFieldValue('ciclo', value.value)
+                            }else{
+                                formik.setFieldValue('ciclo', '')
+                            }
+                        }}
+                        isClearable
+                    />             
+                    {
+                        formik.errors.ciclo &&
+                        <div className="invalid-tooltip d-block">{formik.errors.ciclo}</div>
                     }                
                 </Col>
                 

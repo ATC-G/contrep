@@ -1,6 +1,6 @@
 import { Field, FieldArray, FormikProvider, useFormik } from "formik";
 import { useEffect, useState } from "react"
-import { Alert, Button, Col, Form, Label, Row } from "reactstrap";
+import { Alert, Button, Col, Form, Input, Label, Row } from "reactstrap";
 import * as Yup from "yup";
 import SimpleDate from "../DatePicker/SimpleDate";
 import Select from 'react-select';
@@ -20,6 +20,7 @@ export default function FormCicloEscolar(){
     const [showLoad, setShowLoad] = useState(false)
     const [item, setItem] = useState({
         id: '',
+        nombre: '',
         colegioId: '',
         fechaInicio:'',
         fechaFin: '',
@@ -61,6 +62,7 @@ export default function FormCicloEscolar(){
         enableReinitialize: true,
         initialValues: item,
         validationSchema: Yup.object({
+            nombre: Yup.string().required(FIELD_REQUIRED),
             colegioId: Yup.string().required(FIELD_REQUIRED),
             fechaInicio: Yup.string().required(FIELD_REQUIRED),
             fechaFin: Yup.string().required(FIELD_REQUIRED),
@@ -124,6 +126,7 @@ export default function FormCicloEscolar(){
                 const result = response.data[0]
                 setItem({
                     id: result.id,
+                    nombre: result.nombre,
                     colegioId: result.colegioId,
                     fechaInicio:moment(result.fechaInicio, 'YYYY-MM-DD').toDate(),
                     fechaFin: moment(result.fechaFin, 'YYYY-MM-DD').toDate(),
@@ -141,6 +144,7 @@ export default function FormCicloEscolar(){
             }else{
                 setItem({
                     id: '',
+                    nombre: '',
                     colegioId: '',
                     fechaInicio:'',
                     fechaFin: '',
@@ -195,6 +199,20 @@ export default function FormCicloEscolar(){
                     {
                         formik.errors.colegioId &&
                         <div className="invalid-tooltip d-block">{formik.errors.colegioId}</div>
+                    }     
+                </Col>
+                <Col xs="12" md="4">
+                    <Label htmlFor="nombre" className="mb-0">Nombre</Label>
+                    <Input
+                        id="nombre"
+                        name="nombre"
+                        className={`form-control ${formik.errors.nombre ? 'is-invalid' : ''}`}
+                        onChange={formik.handleChange}
+                        value={formik.values.nombre}  
+                    />         
+                    {
+                        formik.errors.nombre &&
+                        <div className="invalid-tooltip d-block">{formik.errors.nombre}</div>
                     }     
                 </Col>
                 <Col xs="12" md="4">
