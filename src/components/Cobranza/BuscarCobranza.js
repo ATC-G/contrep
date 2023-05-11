@@ -16,7 +16,7 @@ export default function BuscarCobranza({setLoading, setAllItems, reload, setRelo
         try {
             const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
             if(response.data.length > 0){
-                setFamiliaOpt(response.data.map(rz=>({label: `${rz.nombre}`, value: rz.id, codigo: rz.codigo})))
+                setFamiliaOpt(response.data.map(rz=>({label: `código: ${rz.familia} - RFC: ${rz.rfc} - RZ: ${rz.nombre}`, value: rz.id, codigo: rz.rfc})))
             }else{
                 setFamiliaOpt([])
             }        
@@ -64,7 +64,7 @@ export default function BuscarCobranza({setLoading, setAllItems, reload, setRelo
 
     return(
         <Row>
-            <Col xs="12" md="3">
+            <Col xs="12" md="6">
                 <Label htmlFor="familia" className="mb-0">Buscar por Familia</Label>
                 <Select 
                     classNamePrefix="select2-selection"

@@ -6,14 +6,13 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import { generateReferencia } from "../../helpers/referencia";
 import { toast } from "react-toastify";
-import { getFamiliaList } from "../../helpers/familia";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import { getColegiosList } from "../../helpers/colegios";
 import { getCiclosByColegio } from "../../helpers/ciclos";
 import SubmitingForm from "../Loader/SubmitingForm";
 import { getRazonSocialQuery } from "../../helpers/razonsocial";
 
-export default function GenerarReferencia({setItems}){
+export default function GenerarReferencia({setItems, setSearchF, buscar}){
     const [familiaOBj, setFamiliaObj] = useState(null)
     const [familiaOpt, setFamiliaOpt] = useState([]);
     const [colegioOBj, setColegioObj] = useState(null)
@@ -38,7 +37,7 @@ export default function GenerarReferencia({setItems}){
         try {
             const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
             if(response.data.length > 0){
-                setFamiliaOpt(response.data.map(rz=>({label: `${rz.nombre}`, value: rz.id, codigo: rz.codigo})))
+                setFamiliaOpt(response.data.map(rz=>({label: `código: ${rz.familia} - RFC: ${rz.rfc} - RZ: ${rz.nombre}`, value: rz.id, codigo: rz.rfc})))
             }else{
                 setFamiliaOpt([])
             }        
@@ -57,14 +56,17 @@ export default function GenerarReferencia({setItems}){
 
     const formik = useFormik({
         initialValues: {
+            colegio: '',
             familia: '',
             ciclo: '',     
         },
         validationSchema: Yup.object({
-            familia: Yup.string().required(FIELD_REQUIRED), 
-            ciclo: Yup.string().required(textColegio),           
+            familia: Yup.string().required(FIELD_REQUIRED),
+            colegio: Yup.string().required(FIELD_REQUIRED),  
+            ciclo: Yup.string().required(textColegio),                       
         }),
         onSubmit: (values) => {
+            //console.log(values)
             setItems([])
             setIsSubmit(true)      
             //service here
@@ -85,8 +87,7 @@ export default function GenerarReferencia({setItems}){
                     message = extractMeaningfulMessage(error, message)
                     toast.error(message); 
                     setIsSubmit(false)
-                }
-                
+                }                
             }
             callApi()
         }
@@ -99,6 +100,7 @@ export default function GenerarReferencia({setItems}){
 
     const handleChangeFamilia = value => {
         setFamiliaObj(value);
+        setSearchF(value)
         if(value){
             formik.setFieldValue('familia', value.codigo)
         }else{
@@ -114,8 +116,8 @@ export default function GenerarReferencia({setItems}){
             const response = await getCiclosByColegio(q)
             if(response.data.length > 0){
                 console.log(response.data)
-                //setCicloOpt(response.data)
-                setTextColegio(FIELD_REQUIRED)
+                setCicloOpt(response.data.map(it=>({value: it.id, label: it.nombre})))
+                setTextColegio(FIELD_REQUIRED)                
             }else{
                 formik.setFieldValue('ciclo', '')
                 setTextColegio(FIELD_REQUIRED)
@@ -128,9 +130,11 @@ export default function GenerarReferencia({setItems}){
 
     const handleChange = value => {
         setColegioObj(value);
-        if(value){            
+        if(value){           
+            formik.setFieldValue('colegio', value.value) 
             fetchCiclosByColegio(value);
         }else{
+            formik.setFieldValue('colegio', '') 
             formik.setFieldValue('ciclo', '')
         }        
     }
@@ -146,7 +150,7 @@ export default function GenerarReferencia({setItems}){
         >
             {isSubmit && <SubmitingForm />}
             <Row>
-                <Col xs="12" md="3">
+                <Col xs="12" md="6">
                     <Label htmlFor={`familia`} className="mb-0">Familia</Label>
                     <Select 
                         classNamePrefix="select2-selection"
@@ -172,7 +176,7 @@ export default function GenerarReferencia({setItems}){
                         isClearable
                     />             
                     {
-                        formik.errors.ciclo &&
+                        formik.errors.colegio &&
                         <div className="invalid-tooltip d-block">{textColegio}</div>
                     }                
                 </Col>
@@ -202,6 +206,14 @@ export default function GenerarReferencia({setItems}){
             </Row>
             <hr />
             <div className="d-flex justify-content-end">
+                <Button
+                    color="primary"
+                    type="button"
+                    disabled={!formik.values.familia}
+                    onClick={buscar}
+                    className="me-2"
+                >Buscar
+                </Button>
                 {
                     (formik.values.familia && formik.values.ciclo) ?
                     <Button
@@ -218,8 +230,7 @@ export default function GenerarReferencia({setItems}){
                     >Generar referencia
                     </Button>
 
-                }
-                
+                }                
             </div>
         </Form>
     )

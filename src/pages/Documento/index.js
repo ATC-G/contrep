@@ -2,15 +2,14 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { withRouter } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Button, Col, Container, InputGroup, Label, Row } from "reactstrap";
+import { Col, Container, Row } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import CardBasic from "../../components/Common/CardBasic";
 import GenerarReferencia from "../../components/Documento/GenerarReferencia";
 import SimpleLoad from "../../components/Loader/SimpleLoad";
 import SimpleTable from "../../components/Tables/SimpleTable";
-import { ERROR_SERVER, SELECT_OPTION } from "../../constants/messages";
+import { ERROR_SERVER } from "../../constants/messages";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
-import Select from 'react-select';
 import { getReferenciasByFamily } from "../../helpers/referencia";
 import { numberFormat } from "../../utils/numberFormat";
 import moment from "moment";
@@ -23,7 +22,6 @@ function Documento(){
     const [colegioSelected, setColegioSelected] = useState(null)
     const [items, setItems] = useState([]);
     const [searchF, setSearchF] = useState(null)
-    const [familiaOpt, setFamiliaOpt] = useState([]);
     const [colegioOpt, setColegioOpt] = useState([])
 
     const columns = [
@@ -96,36 +94,15 @@ function Documento(){
       }
     }, [allItems])
 
-    const fetchRazonesSocialesApi = async () => {
-      try {
-          const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
-          if(response.data.length > 0){
-            setFamiliaOpt(response.data.map(rz=>({label: `${rz.nombre}`, value: rz.id, codigo: rz.codigo})))
-        }else{
-            setFamiliaOpt([])
-        }        
-      } catch (error) {
-          let message  = ERROR_SERVER;
-          message = extractMeaningfulMessage(error, message)
-          toast.error(message);
-          setFamiliaOpt([])
-      }
-    }
-
     useEffect(() => {
       fetchColegios()
-      fetchRazonesSocialesApi()
     }, [])
-    
-    const cardChildren = (
-        <>
-            <Row className="mt-2">
-                <Col>
-                    <GenerarReferencia setItems={setItems}/>
-                </Col>
-            </Row>
-        </>
-    );
+
+    useEffect(() => {
+      if(!searchF){
+        setAllItems([])
+      }
+    },[searchF])
 
     const buscar = async () => {
       setLoading(true)
@@ -143,6 +120,20 @@ function Documento(){
         setLoading(false)
       }
     }
+    
+    const cardChildren = (
+        <>
+            <Row className="mt-2">
+                <Col>
+                    <GenerarReferencia 
+                      setItems={setItems}
+                      setSearchF={setSearchF}
+                      buscar={buscar}
+                    />
+                </Col>
+            </Row>
+        </>
+    );    
 
     const changeColegio = (idColegio) => {
       setColegioSelected(idColegio)
@@ -158,34 +149,10 @@ function Documento(){
         }
       )))
       //setItems(currentRefs);
-  }
+    }
 
     const cardHandleList = (
-      <>
-        <Row>
-            <Col xs="12" md="3">
-                <Label htmlFor="familia" className="mb-0">Buscar por Familia</Label>
-                <Select 
-                    classNamePrefix="select2-selection"
-                    placeholder={SELECT_OPTION}
-                    options={familiaOpt} 
-                    value={searchF}
-                    onChange={value=>setSearchF(value)}
-                    isClearable
-                />
-            </Col>
-            <Col xs="12" md="2">
-                <Label className="opacity-0 mb-0 d-block">Fecha de registro</Label>
-                <Button
-                    color="primary"
-                    type="submit"
-                    disabled={!searchF}
-                    onClick={buscar}
-                >Buscar
-                </Button>
-            </Col>
-        </Row>
-        
+      <>        
         {!loading && 
           <div className="d-flex my-2">
             {

@@ -26,8 +26,6 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             familia: item?.familia ?? '',
             apellido:item?.apellido ?? '',
             padre:  item?.padre ?? '',
-            apellidoMaterno: 'testM',
-            apellidoPaterno: 'testP'
         },
         validationSchema: Yup.object({
             nombre: Yup.string().required(FIELD_REQUIRED),
