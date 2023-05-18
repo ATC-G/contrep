@@ -75,7 +75,6 @@ export default function FormCicloEscolar(){
                 })
             )
             .uniqueAnual("Solo se puede seleccionar una fila como anual", a=>a.anual)
-            .uniqueRepetir("Solo se puede seleccionar una fila como repetida", a=>a.anual)
         }),
         onSubmit: async (values) => {
             //validaciones antes de enviarlo

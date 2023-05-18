@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { withRouter } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Button, Col, Container, Row } from "reactstrap";
@@ -13,6 +13,8 @@ import { getColegiosList } from "../../helpers/colegios";
 import { updateReferencias } from "../../helpers/referencia";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import { numberFormat } from "../../utils/numberFormat";
+import ExportExcel from "../../utils/exportexcel";
+import moment from "moment";
 
 function Cobranza(){  
     const [loading, setLoading] = useState(false)
@@ -23,6 +25,7 @@ function Cobranza(){
     const [showLoad, setShowLoad] = useState(false)
     const [reload, setReload] = useState(false)
     const [isAnualidadPagada, setIsAnualidadPagada] = useState(false)
+    const [dataSet, setDataSet] = useState([])
 
     const fetchColegios = async () => {
         try {
@@ -32,7 +35,6 @@ function Cobranza(){
             console.log(error)
         }
     }
-
     useEffect(() => {
         if(allItems.length > 0){
             setColegioSelected(allItems[0].colegio)
@@ -50,7 +52,19 @@ function Cobranza(){
                   fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
                   estatus: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({estatus : it.estatus})),
                 }
-              )))
+            )))
+
+            const data = [];
+            allItems[0].referencias.forEach(element => {
+                const obj = {
+                    "Mes": element.repetir ? '' : element.mes,
+                    "Concepto de pago": element.referenciaBancaria,
+                    "Monto": element.monto,
+                    "Estatus": element.estatus
+                }
+                data.push(obj)
+            })
+            setDataSet(data)
             //setItems(allItems[0].referencias) 
         }else{
             setItems([])
@@ -77,7 +91,7 @@ function Cobranza(){
                     </ul>            
                 ),
                 style: {
-                    width: '35%'
+                    width: '30%'
                 }
             },
             {
@@ -91,7 +105,7 @@ function Cobranza(){
                     </ul>            
                 ),
                 style: {
-                    width: '25%'
+                    width: '20%'
                 }
             },
             {
@@ -129,7 +143,7 @@ function Cobranza(){
                     </div>            
                 ),                
                 style: {
-                    width: '15%'
+                    width: '10%'
                 }
             },
             {
@@ -138,36 +152,54 @@ function Cobranza(){
                 Cell: ({row}) => (
                     <div>
                       {row.original.estatus.map((mt, idx) => (
-                        <Button 
-                            key={`btn-pagar-${idx}`}
-                            color={`${(row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada) ? 
-                                    'secondary' : 
-                                    (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
-                                    'secondary' :
-                                    (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada')) ?
-                                    'secondary' :
-                                    'success'}`
-                                } 
-                            size="sm" 
-                            className="my-1" 
-                            block
-                            disabled={row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada ||
-                                     (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
-                                     (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))
-                                    }
-                            onClick={e=>
-                                (row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada ||
-                                (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
-                                (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))) ? {} :
-                                onHandlePayment(row, idx)}
-                        >
-                            Pagar
-                        </Button>
+                        <div className="d-flex" key={`btn-pagar-${idx}`}>
+                            <Button 
+                                color={`${(row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada) ? 
+                                        'secondary' : 
+                                        (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
+                                        'secondary' :
+                                        (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada')) ?
+                                        'secondary' :
+                                        'success'}`
+                                    } 
+                                size="sm" 
+                                className="my-1 me-1"
+                                disabled={row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada ||
+                                        (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
+                                        (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))
+                                        }
+                                onClick={e=>
+                                    (row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada ||
+                                    (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
+                                    (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))) ? {} :
+                                    onHandlePayment(row, idx)}
+                            >
+                                Pagar
+                            </Button>
+                            <Button
+                                color="dark"
+                                size="sm"
+                                className="my-1 me-1"
+                            >Facturar
+                            </Button>
+                            <Button
+                                color="warning"
+                                size="sm"
+                                className="my-1 me-1"
+                            >Enviar
+                            </Button>
+                            <Button
+                                color="danger"
+                                size="sm"
+                                className="my-1 me-1"
+                            >Cancelar
+                            </Button>
+                        </div>
                       ))}
                     </div>            
                 ),
                 style: {
-                    width: '5%'
+                    width: '20%'
                 }         
             }        
     ];
@@ -195,7 +227,7 @@ function Cobranza(){
     useEffect(() => {
         fetchColegios()
     }, [])
-  
+    
     const cardChildren = (
         <>
             <Row>
@@ -264,20 +296,34 @@ function Cobranza(){
                 </Col>
               </Row>
               {!loading && 
-              <div className="d-flex mb-2">
-                {
-                    allItems.map((it, idx) => (
-                        <div key={it.id} className="pe-2">
-                            <span 
-                                className={`badge fs-6 ${it.colegio === colegioSelected ? 'bg-info' : 'bg-light'} cursor-pointer`}
-                                onClick={e=>changeColegio(it.colegio)}
-                            >
-                                {colegioOpt.find(c=>c.id===it.colegio)?.name ??  `Colegio-${idx+1}`}
-                            </span>
-                        </div>       
-                    ))
-                }
-              </div>}
+              <Row>
+                    <Col xs="12" md="10">
+                        <div className="d-flex mb-2">
+                            {
+                                allItems.map((it, idx) => (
+                                    <div key={it.id} className="pe-2">
+                                        <span 
+                                            className={`badge fs-6 ${it.colegio === colegioSelected ? 'bg-info' : 'bg-light'} cursor-pointer`}
+                                            onClick={e=>changeColegio(it.colegio)}
+                                        >
+                                            {colegioOpt.find(c=>c.id===it.colegio)?.name ??  `Colegio-${idx+1}`}
+                                        </span>
+                                    </div>       
+                                ))
+                            }
+                        </div>
+                    </Col>
+                    {allItems.length > 0 && 
+                    <Col xs="12" md="2">
+                        <div className="d-flex justify-content-end">
+                            <ExportExcel 
+                                fileName={`referencias-${moment().format("DDMMYYYY")}`}
+                                excelData={dataSet}
+                            />
+                        </div>
+                    </Col>}
+              </Row>
+              }
               
 
               <Row className="pb-5">
