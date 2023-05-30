@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { withRouter } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Col, Container, Row } from "reactstrap";
+import { Button, Col, Container, Row } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import CardBasic from "../../components/Common/CardBasic";
 import GenerarReferencia from "../../components/Documento/GenerarReferencia";
@@ -14,7 +14,7 @@ import { getReferenciasByFamily } from "../../helpers/referencia";
 import { numberFormat } from "../../utils/numberFormat";
 import moment from "moment";
 import { getColegiosList } from "../../helpers/colegios";
-import { getRazonSocialQuery } from "../../helpers/razonsocial";
+import EditReferencia from "../../components/Documento/EditReferencia";
 
 function Documento(){  
     const [loading, setLoading] = useState(false)
@@ -23,6 +23,16 @@ function Documento(){
     const [items, setItems] = useState([]);
     const [searchF, setSearchF] = useState(null)
     const [colegioOpt, setColegioOpt] = useState([])
+    const [openEdit, setOpenEdit] = useState(false)
+    const [referencia, setReferencia] = useState(null)
+    const [reloadList, setReloadList] = useState(false);
+
+    const handleEditRef = (row) => {
+      const currentRefs = [...allItems.filter(it=>it.colegio===colegioSelected)[0].referencias];
+      const currentRef = currentRefs.find(r=>r.id===row.id)
+      setReferencia(currentRef)
+      setOpenEdit(true)
+    }
 
     const columns = [
         {
@@ -63,6 +73,28 @@ function Documento(){
             </ul>            
           ),
         },
+        {
+          id: 'acciones',
+          Header: "",
+          Cell: ({row}) => (
+            <ul className="list-unstyled">
+              {row.original.id.map((f, idx) => (
+                <li key={`id-${idx}`}>
+                  <Button
+                    color="info"
+                      size="sm"
+                      className="my-1 me-1"
+                      onClick={() => handleEditRef(f)}
+                  >Editar
+                  </Button>
+                </li>
+              ))}
+            </ul>            
+          ),
+          style: {
+              width: '10%'
+          }         
+      }
     ]
 
     const fetchColegios = async () => {
@@ -73,26 +105,27 @@ function Documento(){
           console.log(error)
       }
     }
-
+    
     useEffect(() => {
-      if(allItems.length > 0){
-          setColegioSelected(allItems[0].colegio)
-          const currentRefs = [...allItems[0].referencias];
-          setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
-            {
-              mes: rf.mes,
-              year: rf.year,
-              anual: rf.anual,
-              referenciaBancaria: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({referenciaBancaria : it.referenciaBancaria})),
-              monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
-              fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
-            }
-          )))  
-      }else{
-          setItems([])
-          setColegioSelected(null)
-      }
-    }, [allItems])
+          if(allItems.length > 0){
+            setColegioSelected(allItems[0].colegio)
+            const currentRefs = [...allItems[0].referencias];
+            setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
+              {
+                id: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({id : it.id})),
+                mes: rf.mes,
+                year: rf.year,
+                anual: rf.anual,
+                referenciaBancaria: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({referenciaBancaria : it.referenciaBancaria})),
+                monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
+                fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
+              }
+            )))  
+        }else{
+            setItems([])
+            setColegioSelected(null)
+        }      
+    }, [allItems, reloadList])
 
     useEffect(() => {
       fetchColegios()
@@ -109,7 +142,7 @@ function Documento(){
       try {
         const response = await getReferenciasByFamily(searchF.codigo)
         if(response.length > 0){
-            setAllItems(response)        
+            setAllItems(response)       
         }
         setLoading(false)
       } catch (error) {
@@ -120,6 +153,13 @@ function Documento(){
         setLoading(false)
       }
     }
+
+    useEffect(() => {
+      if(reloadList){
+        buscar();
+        setReloadList(false)
+      }
+    },[reloadList])
     
     const cardChildren = (
         <>
@@ -140,6 +180,7 @@ function Documento(){
       const currentRefs = [...allItems.filter(it=>it.colegio===idColegio)[0].referencias];
       setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
         {
+          id: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({id : it.id})),
           mes: rf.mes,
           year: rf.year,
           anual: rf.anual,
@@ -148,7 +189,6 @@ function Documento(){
           fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
         }
       )))
-      //setItems(currentRefs);
     }
 
     const cardHandleList = (
@@ -211,6 +251,13 @@ function Documento(){
                   </Col>
               </Row>  
             </Container>
+            
+            <EditReferencia 
+              open={openEdit}
+              setOpen={setOpenEdit}
+              referencia={referencia}
+              setReloadList={setReloadList}
+            />
           </div>
         </>
       );

@@ -8,13 +8,16 @@ import CardBasic from "../../components/Common/CardBasic";
 import SimpleLoad from "../../components/Loader/SimpleLoad";
 import SubmitingForm from "../../components/Loader/SubmitingForm";
 import SimpleTable from "../../components/Tables/SimpleTable";
-import { ERROR_SERVER, SUCCESS_REQUEST } from "../../constants/messages";
+import { ERROR_SERVER, SUCCESS_REQUEST, UPDATE_SUCCESS } from "../../constants/messages";
 import { getColegiosList } from "../../helpers/colegios";
-import { updateReferencias } from "../../helpers/referencia";
+import { updateReferencia, updateReferencias } from "../../helpers/referencia";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import { numberFormat } from "../../utils/numberFormat";
 import ExportExcel from "../../utils/exportexcel";
 import moment from "moment";
+import BasicDialog from "../../components/Common/BasicDialog";
+import Pagar from "../../components/Cobranza/Pagar";
+import Cancelar from "../../components/Cobranza/Cancelar";
 
 function Cobranza(){  
     const [loading, setLoading] = useState(false)
@@ -26,6 +29,11 @@ function Cobranza(){
     const [reload, setReload] = useState(false)
     const [isAnualidadPagada, setIsAnualidadPagada] = useState(false)
     const [dataSet, setDataSet] = useState([])
+    const [open, setOpen] = useState(false)
+    const [operation, setOperation] = useState({
+        title: "",
+        children: "",
+    })
 
     const fetchColegios = async () => {
         try {
@@ -44,13 +52,14 @@ function Cobranza(){
             }
             setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
                 {
-                  mes: rf.mes,
-                  year: rf.year,
-                  anual: rf.anual,
-                  referenciaBancaria: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({referenciaBancaria : it.referenciaBancaria})),
-                  monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
-                  fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
-                  estatus: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({estatus : it.estatus})),
+                    id: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({id : it.id})),
+                    mes: rf.mes,
+                    year: rf.year,
+                    anual: rf.anual,
+                    referenciaBancaria: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({referenciaBancaria : it.referenciaBancaria})),
+                    monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
+                    fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
+                    estatus: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({estatus : it.estatus})),
                 }
             )))
 
@@ -71,6 +80,27 @@ function Cobranza(){
             setColegioSelected(null)
         }
     }, [allItems])
+    
+    const handleOperation = (type, row, idx) => {
+        switch(type){
+            case "pagar":
+                setOpen(true)
+                setOperation({
+                    title: "Pagar",
+                    children: <Pagar onHandlePayment={onHandlePagar} setOpen={setOpen}  row={row.original} idx={idx} />,
+                })
+                break;
+            case "cancelar":
+                setOpen(true)
+                setOperation({
+                    title: "Cancelar pago",
+                    children: <Cancelar onHandleCancelPayment={onHandleCancelPayment} setOpen={setOpen}  row={row.original} idx={idx} />,
+                })
+                break;            
+            default: 
+                break;
+        }
+    }
     const columns =[
             {
                 Header: 'Mes',
@@ -169,10 +199,10 @@ function Cobranza(){
                                         (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))
                                         }
                                 onClick={e=>
-                                    (row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada ||
-                                    (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
-                                    (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))) ? {} :
-                                    onHandlePayment(row, idx)}
+                                     (row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada ||
+                                     (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
+                                     (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))) ? {} :
+                                     handleOperation("pagar", row, idx)}
                             >
                                 Pagar
                             </Button>
@@ -192,6 +222,8 @@ function Cobranza(){
                                 color="danger"
                                 size="sm"
                                 className="my-1 me-1"
+                                disabled={mt.estatus === 'activa'}
+                                onClick={e=>mt.estatus === 'activa' ? {} : handleOperation("cancelar", row, idx)}
                             >Cancelar
                             </Button>
                         </div>
@@ -203,26 +235,62 @@ function Cobranza(){
                 }         
             }        
     ];
-    //console.log(items)
-    const onHandlePayment = async (row, idx) => {
+
+    const onHandlePagar = async (row, idx) => {
         setShowLoad(true)
-        //buscamos la ref bancaria que vamos a pagar
-        const ref = row.original.referenciaBancaria[idx];
-        const currentItem = allItems.filter(it=>it.colegio===colegioSelected)[0];
-        const currentRow = currentItem.referencias.find(it=>it.referenciaBancaria === ref.referenciaBancaria);
-        currentRow.estatus = 'pagada'
-        try {
-            await updateReferencias(currentItem)
-            toast.success(SUCCESS_REQUEST);
-            setReload(true)
+        const data = {
+            id: row.id[idx].id,
+            monto: row.monto[idx].monto,
+            anual: row.anual,
+            fechaLimite: row.fechaLimite[idx].fechaLimite,
+            estatus: "pagada"
+          }
+          try {
+            let response = await updateReferencia(data)
+            if(response){
+                toast.success(UPDATE_SUCCESS);
+                setOpen(false)
+                setReload(true)
+            }else{
+                toast.error(ERROR_SERVER);
+            }
             setShowLoad(false)
         } catch (error) {
             let message  = ERROR_SERVER;
             message = extractMeaningfulMessage(error, message)
-            toast.error(message);
+            toast.error(message); 
             setShowLoad(false)
-        }        
+        }      
     }
+
+    const onHandleCancelPayment = async (row, idx) => {
+        setShowLoad(true)
+        const data = {
+            id: row.id[idx].id,
+            monto: row.monto[idx].monto,
+            anual: row.anual,
+            fechaLimite: row.fechaLimite[idx].fechaLimite,
+            estatus: "activa"
+          }
+          try {
+            let response = await updateReferencia(data)
+            if(response){
+                toast.success(UPDATE_SUCCESS);
+                setOpen(false)
+                setReload(true)
+            }else{
+                toast.error(ERROR_SERVER);
+            }
+            setShowLoad(false)
+        } catch (error) {
+            let message  = ERROR_SERVER;
+            message = extractMeaningfulMessage(error, message)
+            toast.error(message); 
+            setShowLoad(false)
+        }      
+    }
+
+    
 
     useEffect(() => {
         fetchColegios()
@@ -332,6 +400,14 @@ function Cobranza(){
                   </Col>
               </Row>  
             </Container>
+
+            <BasicDialog 
+                open={open}
+                setOpen={setOpen}
+                title={operation.title}
+                size="md"
+                children={operation.children}
+            />
           </div>
         </>
       );

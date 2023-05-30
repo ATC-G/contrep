@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Button, Col, Label, Row } from "reactstrap";
 import { ERROR_SERVER, SELECT_OPTION } from "../../constants/messages";
-import { getFamiliaList } from "../../helpers/familia";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import Select from 'react-select';
 import { getReferenciasByFamily } from "../../helpers/referencia";
