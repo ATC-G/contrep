@@ -14,7 +14,7 @@ const Cancelar = ({onHandleCancelPayment, setOpen, row, idx}) => {
                 </div>
                 <div>
                 <Button color="light" type="button" className="me-2" onClick={() =>setOpen(false)}>
-                    Cancelar
+                    Cancelar 
                 </Button>
                 </div>
             </div>
