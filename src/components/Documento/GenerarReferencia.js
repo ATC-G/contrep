@@ -12,8 +12,9 @@ import { getCiclosByColegio } from "../../helpers/ciclos";
 import SubmitingForm from "../Loader/SubmitingForm";
 import { getRazonSocialQuery } from "../../helpers/razonsocial";
 
-export default function GenerarReferencia({setItems, setSearchF, buscar}){
+export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfData}){
     const [familiaOBj, setFamiliaObj] = useState(null)
+    const [familiaAllOpt, setFamiliaAllOpt] = useState([]);
     const [familiaOpt, setFamiliaOpt] = useState([]);
     const [colegioOBj, setColegioObj] = useState(null)
     const [colegioOpt, setColegioOpt] = useState([]);
@@ -23,21 +24,31 @@ export default function GenerarReferencia({setItems, setSearchF, buscar}){
     const [cicloObj, setCicloObj] = useState(null)
     const [cicloOpt, setCicloOpt] = useState([]);
     
+    
 
     const fetchColegios = async () => {
         try {
             const response = await getColegiosList();
+            console.log(response)
             setColegioOpt(response.map(r=>({value: r.id, label: r.nombre})))
         } catch (error) {
             console.log(error)
         }
     }
 
-    const fetchRazonesSocialesApi = async () => {
+    //console.log(colegioOpt)
+    //console.log(familiaAllOpt)
+    const fetchFamiliasRSApi = async () => {
         try {
             const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
             if(response.data.length > 0){
-                setFamiliaOpt(response.data.map(rz=>({label: `código: ${rz.familia} - RFC: ${rz.rfc} - RZ: ${rz.nombre}`, value: rz.id, codigo: rz.rfc})))
+                //setFamiliaAllOpt(response.data)
+                setFamiliaOpt(response.data.map(rz=>({
+                    label: `${rz.familia} - ${rz.apellido}`, 
+                    value: rz.id, 
+                    codigo: rz.rfc, 
+                    apellido: rz.apellido
+                })))
             }else{
                 setFamiliaOpt([])
             }        
@@ -50,7 +61,7 @@ export default function GenerarReferencia({setItems, setSearchF, buscar}){
     }
 
     useEffect(() => {
-        fetchRazonesSocialesApi()
+        fetchFamiliasRSApi()
         fetchColegios();
     }, [])
 
@@ -103,8 +114,16 @@ export default function GenerarReferencia({setItems, setSearchF, buscar}){
         setSearchF(value)
         if(value){
             formik.setFieldValue('familia', value.codigo)
+            setPdfData(prev=>({
+                ...prev,
+                familia: value.apellido
+            }))
         }else{
             formik.setFieldValue('familia', '')
+            setPdfData(prev=>({
+                ...prev,
+                familia: ''
+            }))
         }        
     }  
 
@@ -150,21 +169,6 @@ export default function GenerarReferencia({setItems, setSearchF, buscar}){
         >
             {isSubmit && <SubmitingForm />}
             <Row>
-                <Col xs="12" md="6">
-                    <Label htmlFor={`familia`} className="mb-0">Familia</Label>
-                    <Select 
-                        classNamePrefix="select2-selection"
-                        placeholder={SELECT_OPTION}
-                        options={familiaOpt} 
-                        value={familiaOBj}
-                        onChange={handleChangeFamilia}
-                        isClearable
-                    /> 
-                    {
-                        formik.errors.familia &&
-                        <div className="invalid-tooltip d-block">{formik.errors.familia}</div>
-                    }
-                </Col>
                 <Col xs="12" md="3">
                     <Label htmlFor="colegio" className="mb-0">Colegio</Label>
                     <Select 
@@ -180,6 +184,21 @@ export default function GenerarReferencia({setItems, setSearchF, buscar}){
                         <div className="invalid-tooltip d-block">{textColegio}</div>
                     }                
                 </Col>
+                <Col xs="12" md="6">
+                    <Label htmlFor={`familia`} className="mb-0">Familia</Label>
+                    <Select 
+                        classNamePrefix="select2-selection"
+                        placeholder={SELECT_OPTION}
+                        options={familiaOpt} 
+                        value={familiaOBj}
+                        onChange={handleChangeFamilia}
+                        isClearable
+                    /> 
+                    {
+                        formik.errors.familia &&
+                        <div className="invalid-tooltip d-block">{formik.errors.familia}</div>
+                    }
+                </Col>                
                 <Col xs="12" md="3">
                     <Label htmlFor="ciclo" className="mb-0">Ciclo</Label>
                     <Select 

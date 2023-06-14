@@ -207,13 +207,15 @@ function Cobranza(){
                                 Pagar
                             </Button>
                             <Button
-                                color="dark"
+                                color="secondary"
+                                disabled
                                 size="sm"
                                 className="my-1 me-1"
                             >Facturar
                             </Button>
                             <Button
-                                color="warning"
+                                color="secondary"
+                                disabled
                                 size="sm"
                                 className="my-1 me-1"
                             >Enviar

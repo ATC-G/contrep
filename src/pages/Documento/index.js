@@ -15,6 +15,8 @@ import { numberFormat } from "../../utils/numberFormat";
 import moment from "moment";
 import { getColegiosList } from "../../helpers/colegios";
 import EditReferencia from "../../components/Documento/EditReferencia";
+import { Document, PDFDownloadLink, Page } from "@react-pdf/renderer";
+import Reporte from "../../components/PDF/Reporte";
 
 function Documento(){  
     const [loading, setLoading] = useState(false)
@@ -26,6 +28,12 @@ function Documento(){
     const [openEdit, setOpenEdit] = useState(false)
     const [referencia, setReferencia] = useState(null)
     const [reloadList, setReloadList] = useState(false);
+    const [pdfData, setPdfData] = useState({
+      familia: '',
+      alumnos: [],
+      convenio: '',
+      referencias: []
+  })
 
     const handleEditRef = (row) => {
       const currentRefs = [...allItems.filter(it=>it.colegio===colegioSelected)[0].referencias];
@@ -110,7 +118,7 @@ function Documento(){
           if(allItems.length > 0){
             setColegioSelected(allItems[0].colegio)
             const currentRefs = [...allItems[0].referencias];
-            setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
+            const refs = currentRefs.filter(crf => !crf.repetir).map(rf => (
               {
                 id: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({id : it.id})),
                 mes: rf.mes,
@@ -120,10 +128,22 @@ function Documento(){
                 monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
                 fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
               }
-            )))  
+            ))
+            setItems(refs)
+            const currentAlumnos = [...allItems[0].alumnos]
+            setPdfData(prev=>({
+              ...prev,
+              alumnos: currentAlumnos.map(it=>({nombre: it.nombre, mensualidad: it.mensualidad})),
+              referencias: refs
+            }))
         }else{
             setItems([])
             setColegioSelected(null)
+            setPdfData(prev=>({
+              ...prev,
+              alumnos: [],
+              referencias: []
+            }))
         }      
     }, [allItems, reloadList])
 
@@ -141,8 +161,9 @@ function Documento(){
       setLoading(true)
       try {
         const response = await getReferenciasByFamily(searchF.codigo)
+        console.log(response)
         if(response.length > 0){
-            setAllItems(response)       
+            setAllItems(response)
         }
         setLoading(false)
       } catch (error) {
@@ -169,6 +190,7 @@ function Documento(){
                       setItems={setItems}
                       setSearchF={setSearchF}
                       buscar={buscar}
+                      setPdfData={setPdfData}
                     />
                 </Col>
             </Row>
@@ -178,7 +200,7 @@ function Documento(){
     const changeColegio = (idColegio) => {
       setColegioSelected(idColegio)
       const currentRefs = [...allItems.filter(it=>it.colegio===idColegio)[0].referencias];
-      setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
+      const refs = currentRefs.filter(crf => !crf.repetir).map(rf => (
         {
           id: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({id : it.id})),
           mes: rf.mes,
@@ -188,26 +210,47 @@ function Documento(){
           monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
           fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
         }
-      )))
+      )) 
+      setItems(refs)
+      const currentAlumnos = [...allItems.filter(it=>it.colegio===idColegio)[0].alumnos];
+      setPdfData(prev=>({
+        ...prev,
+        alumnos: currentAlumnos.map(it=>({nombre: it.nombre, mensualidad: it.mensualidad})),
+        referencias: refs
+      }))
     }
 
     const cardHandleList = (
       <>        
         {!loading && 
-          <div className="d-flex my-2">
-            {
-                allItems.map((it, idx) => (
-                    <div key={it.id} className="pe-2">
-                        <span 
-                            className={`badge fs-6 ${it.colegio === colegioSelected ? 'bg-info' : 'bg-light'} cursor-pointer`}
-                            onClick={e=>changeColegio(it.colegio)}
-                        >
-                            {colegioOpt.find(c=>c.id===it.colegio)?.name ??  `Colegio-${idx+1}`}
-                        </span>
-                    </div>       
+          <>
+            <div className="d-flex">
+              {
+                  allItems.map((it, idx) => (
+                      <div key={it.id} className="pe-2">
+                          <span 
+                              className={`badge fs-6 ${it.colegio === colegioSelected ? 'bg-info' : 'bg-light'} cursor-pointer`}
+                              onClick={e=>changeColegio(it.colegio)}
+                          >
+                              {colegioOpt.find(c=>c.id===it.colegio)?.name ??  `Colegio-${idx+1}`}
+                          </span>
+                      </div>       
+                  ))
+              }
+            </div>
+            <div className="mb-4">
+              <h6>{pdfData.familia}</h6>
+              {
+                pdfData.alumnos.map((it, idx) => (
+                  <Row key={`alumnos-${idx}`}>
+                    <Col xs="8" md="3">{it.nombre}</Col>
+                    <Col xs="8" md="3">{numberFormat(it.mensualidad)}</Col>
+                  </Row>
                 ))
-            }
-          </div>}
+              }
+            </div>
+          </>
+        }
         {
           loading ?
           <Row>
@@ -216,7 +259,15 @@ function Documento(){
               </Col>
           </Row> :
           <Row>
-              <Col xl="12">                                    
+              <Col xl="12">      
+                  {!!items.length && <div className="d-flex justify-content-end mb-1">
+                    <PDFDownloadLink document={<Reporte pdfData={pdfData} />} fileName="somename.pdf">
+                      {({ blob, url, loading, error }) =>
+                        loading ? <Button color="secondary" outline disabled type="button"><i className="bx bxs-file-pdf" /> Cargando documento</Button> : 
+                        <Button color="secondary" outline type="button"><i className="bx bxs-file-pdf" /> Descargar</Button>
+                      }
+                    </PDFDownloadLink>                    
+                  </div>   }                           
                   <SimpleTable
                       columns={columns}
                       data={items} 
