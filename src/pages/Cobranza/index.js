@@ -18,6 +18,7 @@ import moment from "moment";
 import BasicDialog from "../../components/Common/BasicDialog";
 import Pagar from "../../components/Cobranza/Pagar";
 import Cancelar from "../../components/Cobranza/Cancelar";
+import EditarReferencia from "../../components/Cobranza/EditarReferencia";
 
 function Cobranza(){  
     const [loading, setLoading] = useState(false)
@@ -60,6 +61,9 @@ function Cobranza(){
                     monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
                     fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
                     estatus: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({estatus : it.estatus})),
+                    isActive: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({isActive : it.isActive})),
+                    fechaPago: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaPago : it.fechaPago})),
+                    fechaCreacion: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaCreacion : it.fechaCreacion})),
                 }
             )))
 
@@ -69,7 +73,9 @@ function Cobranza(){
                     "Mes": element.repetir ? '' : element.mes,
                     "Concepto de pago": element.referenciaBancaria,
                     "Monto": element.monto,
-                    "Estatus": element.estatus
+                    "Estatus": element.estatus,
+                    "FechaPago": element.fechaPago
+
                 }
                 data.push(obj)
             })
@@ -96,7 +102,14 @@ function Cobranza(){
                     title: "Cancelar pago",
                     children: <Cancelar onHandleCancelPayment={onHandleCancelPayment} setOpen={setOpen}  row={row.original} idx={idx} />,
                 })
-                break;            
+                break; 
+            case "editar":
+                setOpen(true)
+                setOperation({
+                    title: "Editar referencia",
+                    children: <EditarReferencia onHandleEditar={onHandleEditar} setOpen={setOpen}  row={row.original} idx={idx} />,
+                })
+                break;           
             default: 
                 break;
         }
@@ -107,7 +120,7 @@ function Cobranza(){
                 accessor: 'mes', // accessor is the "key" in the data
                 Cell: ({row}) => <strong>{`${row.values.mes !== 'N/A' ? row.values.mes : ''} ${(row.original.year > 0 && !row.original.anual) ? row.original.year : ''}`}</strong>,
                 style: {
-                    width: '20%'
+                    width: '18%'
                 }
             },
             {
@@ -121,7 +134,7 @@ function Cobranza(){
                     </ul>            
                 ),
                 style: {
-                    width: '30%'
+                    width: '19%'
                 }
             },
             {
@@ -135,7 +148,7 @@ function Cobranza(){
                     </ul>            
                 ),
                 style: {
-                    width: '20%'
+                    width: '15%'
                 }
             },
             {
@@ -177,6 +190,34 @@ function Cobranza(){
                 }
             },
             {
+                Header: 'Fecha de pago',
+                accessor: 'fechaPago',
+                Cell: ({row}) => (
+                    <ul className="list-unstyled">
+                      {row.original.fechaPago.map((rB, idx) => (
+                        <li key={`fechaPago-${idx}`}>{moment(rB.fechaPago, "YYYY-MM-DD").format("DD/MM/YYYY")}</li>
+                      ))}
+                    </ul>            
+                ),
+                style: {
+                    width: '10%'
+                }
+            },
+            {
+                Header: 'Fecha de actualización',
+                accessor: 'fechaCreacion',
+                Cell: ({row}) => (
+                    <ul className="list-unstyled">
+                      {row.original.fechaCreacion.map((rB, idx) => (
+                        <li key={`fechaCreacion-${idx}`}>{moment(rB.fechaCreacion, "YYYY-MM-DD").format("DD/MM/YYYY")}</li>
+                      ))}
+                    </ul>            
+                ),
+                style: {
+                    width: '10%'
+                }
+            },
+            {
                 id: 'acciones',
                 Header: "",
                 Cell: ({row}) => (
@@ -184,7 +225,7 @@ function Cobranza(){
                       {row.original.estatus.map((mt, idx) => (
                         <div className="d-flex" key={`btn-pagar-${idx}`}>
                             <Button 
-                                color={`${(row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada) ? 
+                                color={`${(row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !row.original.isActive[idx].isActive) ? 
                                         'secondary' : 
                                         (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
                                         'secondary' :
@@ -194,12 +235,12 @@ function Cobranza(){
                                     } 
                                 size="sm" 
                                 className="my-1 me-1"
-                                disabled={row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada ||
+                                disabled={row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !row.original.isActive[idx].isActive ||
                                         (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
                                         (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))
                                         }
                                 onClick={e=>
-                                     (row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada ||
+                                     (row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !row.original.isActive[idx].isActive ||
                                      (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
                                      (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))) ? {} :
                                      handleOperation("pagar", row, idx)}
@@ -221,12 +262,19 @@ function Cobranza(){
                             >Enviar
                             </Button>
                             <Button
-                                color="danger"
+                                color={`${!row.original.isActive[idx].isActive ? 'secondary' : 'danger'}`}
                                 size="sm"
                                 className="my-1 me-1"
-                                disabled={mt.estatus === 'activa'}
+                                disabled={mt.estatus === 'activa' || !row.original.isActive[idx].isActive}
                                 onClick={e=>mt.estatus === 'activa' ? {} : handleOperation("cancelar", row, idx)}
                             >Cancelar
+                            </Button>
+                            <Button
+                                color="primary"
+                                size="sm"
+                                className="my-1 me-1"
+                                onClick={e=>handleOperation("editar", row, idx)}
+                            >Editar
                             </Button>
                         </div>
                       ))}
@@ -290,9 +338,12 @@ function Cobranza(){
             toast.error(message); 
             setShowLoad(false)
         }      
-    }
+    }    
 
-    
+    const onHandleEditar = () => {
+        setOpen(false)
+        setReload(true)
+    }
 
     useEffect(() => {
         fetchColegios()

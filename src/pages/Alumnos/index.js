@@ -11,8 +11,9 @@ import CellActions from "../../components/Tables/CellActions";
 import Paginate from "../../components/Tables/Paginate";
 import SimpleTable from "../../components/Tables/SimpleTable";
 import { ERROR_SERVER } from "../../constants/messages";
-import { getAlumnosList } from "../../helpers/alumnos";
+import { getAlumnosList, getMultipleListAlumnos } from "../../helpers/alumnos";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
+import { numberFormat } from "../../utils/numberFormat";
 
 function Alumnos(){  
     const [loading, setLoading] = useState(true)
@@ -23,16 +24,20 @@ function Alumnos(){
     const [openAccordion, setOpenAccordion] = useState(false)
     const [reload, setReload] = useState(false);
     const [searchBy, setSearchBy] = useState('')
+    const [colegioOpt, setColegioOpt] = useState([])
+    const [razonSocialOpt, setRazonSocialOpt] = useState([])
+    const [firstTime, setFirstTime] = useState(true)
     const [query, setQuery] = useState({
       PageNumber: 0,
       PageSize: totalRegistros
     })
 
-  const fetchBoadTypeListPaginadoApi = async () => {
+  const fetchAlumnosListPaginadoApi = async () => {
     setLoading(true)
     let q = Object.keys(query).map(key=>`${key}=${query[key]}`).join("&")
     try {
         const response = await getAlumnosList(`?${q}`);
+        console.log(response)
         setItems(response.data)
         setTotalPaginas(response.totalPages)
         setTotalRegistros(response.totalRecords)
@@ -48,55 +53,107 @@ function Alumnos(){
     } 
   }
 
+  const fecthDataApis = async () => {
+    const queryObj  ={
+      razonSocial: `?PageNumber=0&PageSize=1000`,
+      alumnos: `?${Object.keys(query).map(key=>`${key}=${query[key]}`).join("&")}`
+    }
+    try {
+      const response = await getMultipleListAlumnos(queryObj);
+      //console.log(response)
+      setRazonSocialOpt(response[0].data.map(rz=>({
+        label: `${rz.familia} - ${rz.apellido}`, 
+        value: rz.id, 
+        codigo: rz.rfc, 
+        apellido: rz.apellido,
+        familia: rz.familia
+      })))
+      setColegioOpt(response[1].map(r=>({value: r.id, label: r.nombre, codigo: r.codigo})))
+      //alumnos
+      setItems(response[2].data)
+      setTotalPaginas(response[2].totalPages)
+      setTotalRegistros(response[2].totalRecords)
+      setLoading(false)
+
+      setFirstTime(false)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
-    fetchBoadTypeListPaginadoApi()
+    fecthDataApis()
+    setFirstTime(false)   
+  }, [])
+
+  useEffect(() => {
+    if(!firstTime){
+      fetchAlumnosListPaginadoApi()
+    }    
   }, [query])
   useEffect(() => {
     if(reload){
-      fetchBoadTypeListPaginadoApi()
+      fetchAlumnosListPaginadoApi()
       setReload(false)
     }
   }, [reload])
 
   const editAction = (row) => {
-    console.log(row)
+    //console.log(row)
     setItem(row.original)
     setOpenAccordion(true)
     window.scrollTo({top: 0, left: 0, behavior: 'smooth'})
   }
 
-  const columns = useMemo(
-      () => [
-        {
-          Header: 'CURP',
-          accessor: 'curp', // accessor is the "key" in the data
-        },
-        {
-          Header: 'Nombre',
-          accessor: 'nombre',
-        },
-        {
-          Header: 'Correo electrónico',
-          accessor: 'email',
-        },
-        {
-          id: 'acciones',
-          Header: "Acciones",
-          Cell: ({row}) => (
-              <>
-                  <CellActions
-                      edit={{"allow": true, action: editAction}} 
-                      row={row}
-                  />
-              </>
-          ), 
-          style: {
-              width: '10%'
-          }         
+  const columns = [
+      {
+        Header: 'Colegio',
+        accessor: 'colegio', // accessor is the "key" in the data
+      },
+      {
+        Header: 'Cod. Familia',
+        accessor: 'razonSocial',
+        Cell: ({value}) => {
+          console.log(razonSocialOpt)
+          console.log(value)
+          return razonSocialOpt.find(rz=>rz.value === value)?.familia
         }
-      ],
-      []
-  );
+      },
+      {
+        Header: 'Apellido Familia',
+        accessor: 'apellidos',
+        Cell: ({row, value}) => razonSocialOpt.find(rz=>rz.value === row.original.razonSocial)?.apellido
+      },
+      {
+        Header: 'Nombre',
+        accessor: 'nombre',
+        Cell: ({row, value}) => `${value} ${row.original.apellidos}`
+      },
+      {
+        Header: 'Mensualidad',
+        accessor: 'mensualidad',
+        Cell: ({value}) => numberFormat(value)
+      },
+      {
+        Header: 'Correo electrónico',
+        accessor: 'email',
+      },
+      {
+        id: 'acciones',
+        Header: "Acciones",
+        Cell: ({row}) => (
+            <>
+                <CellActions
+                    edit={{"allow": true, action: editAction}} 
+                    row={row}
+                />
+            </>
+        ), 
+        style: {
+            width: '10%'
+        }         
+      }
+  ]
 
   const handlePageClick = page => {
     setQuery(prev=>({
@@ -134,6 +191,8 @@ function Alumnos(){
                     item={item}
                     setItem={setItem}
                     setReloadList={setReload}
+                    colegioOpt={colegioOpt}
+                    razonSocialOpt={razonSocialOpt}
                   />
               </Col>
           </Row>

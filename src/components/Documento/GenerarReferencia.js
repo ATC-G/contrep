@@ -22,22 +22,17 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
     const [isSubmit, setIsSubmit] = useState(false);
     const [textColegio, setTextColegio] = useState(FIELD_REQUIRED)
     const [cicloObj, setCicloObj] = useState(null)
-    const [cicloOpt, setCicloOpt] = useState([]);
-    
-    
+    const [cicloOpt, setCicloOpt] = useState([]);    
 
     const fetchColegios = async () => {
         try {
             const response = await getColegiosList();
-            console.log(response)
             setColegioOpt(response.map(r=>({value: r.id, label: r.nombre})))
         } catch (error) {
             console.log(error)
         }
     }
 
-    //console.log(colegioOpt)
-    //console.log(familiaAllOpt)
     const fetchFamiliasRSApi = async () => {
         try {
             const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
@@ -220,8 +215,7 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
                         formik.errors.ciclo &&
                         <div className="invalid-tooltip d-block">{formik.errors.ciclo}</div>
                     }                
-                </Col>
-                
+                </Col>                
             </Row>
             <hr />
             <div className="d-flex justify-content-end">

@@ -33,7 +33,7 @@ function Documento(){
       alumnos: [],
       convenio: '',
       referencias: []
-  })
+    })
 
     const handleEditRef = (row) => {
       const currentRefs = [...allItems.filter(it=>it.colegio===colegioSelected)[0].referencias];

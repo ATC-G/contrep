@@ -2,27 +2,24 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { Button, Col, Form, Input, Label, Row } from "reactstrap";
 import * as Yup from "yup";
-import { CAMPO_MAYOR_CERO, CAMPO_MENOR_CIEN, ERROR_SERVER, FIELD_EMAIL, FIELD_NUMERIC, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION, UPDATE_SUCCESS } from "../../constants/messages";
+import { ERROR_SERVER, FIELD_NUMERIC, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION, UPDATE_SUCCESS } from "../../constants/messages";
 import Select from 'react-select';
-import { getRazonSocialQuery } from "../../helpers/razonsocial";
-import { getColegiosList } from "../../helpers/colegios";
 import { saveAlumnos, updateAlumnos } from "../../helpers/alumnos";
 import { toast } from "react-toastify";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import SubmitingForm from "../Loader/SubmitingForm";
 
-export default function FormAlumnos({item, setItem, setReloadList}){
+export default function FormAlumnos({item, setItem, setReloadList, colegioOpt, razonSocialOpt}){
     const [isSubmit, setIsSubmit] = useState(false);
     const [colegioOBj, setColegioObj] = useState(null)
-    const [colegioOpt, setColegioOpt] = useState([])
     const [razonSocialOBj, setRazonSocialObj] = useState(null)
-    const [razonSocialOpt, setRazonSocialOpt] = useState([])
 
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
             id: item?.id ?? '',
             nombre: item?.nombre ?? '',
+            apellidos: item?.apellidos ?? '',
             curp: item?.curp ?? '',
             colegio: item?.colegio ?? '',
             email: item?.email ?? '',
@@ -35,14 +32,9 @@ export default function FormAlumnos({item, setItem, setReloadList}){
         },
         validationSchema: Yup.object({
             nombre: Yup.string().required(FIELD_REQUIRED), 
-            curp: Yup.string().required(FIELD_REQUIRED),
+            apellidos: Yup.string().required(FIELD_REQUIRED), 
             colegio: Yup.string().required(FIELD_REQUIRED),
-            email: Yup.string().email(FIELD_EMAIL).required(FIELD_REQUIRED),
-            telefono: Yup.string().required(FIELD_REQUIRED),
-            grado: Yup.string().required(FIELD_REQUIRED),
-            mensualidad: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED),
-            beca: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED).min(0, CAMPO_MAYOR_CERO).max(100, CAMPO_MENOR_CIEN), 
-            matricula: Yup.string().required(FIELD_REQUIRED),
+            mensualidad: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED),            
             razonSocial: Yup.string().required(FIELD_REQUIRED),            
         }),
         onSubmit: async (values) => {
@@ -106,39 +98,12 @@ export default function FormAlumnos({item, setItem, setReloadList}){
             formik.setFieldValue('colegio', '')
         }        
     }
-    const fetchRazonSocialListPaginadoApi = async () => {
-        try {
-            const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
-            console.log(response)
-            if(response.data.length){
-                setRazonSocialOpt(response.data.map(rz=>({label: `código: ${rz.familia} - RFC: ${rz.rfc} - RZ: ${rz.nombre}`, value: rz.id})))
-            }else{
-                setRazonSocialOpt([])
-            }            
-        } catch (error) {
-            console.log(error)
-            setRazonSocialOpt([])
-        } 
-    }
-
-    const fetchColegios = async () => {
-        try {
-            const response = await getColegiosList();
-            setColegioOpt(response.map(r=>({value: r.id, label: r.nombre, codigo: r.codigo})))
-        } catch (error) {
-            console.log(error)
-        }
-    }
-    useEffect(() => {
-        fetchRazonSocialListPaginadoApi()
-        fetchColegios()
-    }, [])
     
     //fill out the selects obj
     useEffect(() => {
         if(item){            
             setColegioObj({value: item.colegio, label: colegioOpt.find(c=>c.codigo===item.colegio)?.label})
-            setRazonSocialObj({value: item.razonSocial, label: razonSocialOpt.find(c=>c.id===item.razonSocial)?.label})
+            setRazonSocialObj({value: item.razonSocial, label: razonSocialOpt.find(c=>c.value===item.razonSocial)?.label})
         }
     },[item])
     
@@ -194,7 +159,7 @@ export default function FormAlumnos({item, setItem, setReloadList}){
                         <div className="invalid-tooltip d-block">{formik.errors.colegio}</div>
                     }
                 </Col>
-                <Col xs="12" md="4">
+                <Col xs="12" md="2">
                     <Label htmlFor="nombre" className="mb-0">Nombre:</Label>
                     <Input
                         id="nombre"
@@ -206,6 +171,20 @@ export default function FormAlumnos({item, setItem, setReloadList}){
                     {
                         formik.errors.nombre &&
                         <div className="invalid-tooltip">{formik.errors.nombre}</div>
+                    }
+                </Col>
+                <Col xs="12" md="4">
+                    <Label htmlFor="apellidos" className="mb-0">Apellidos:</Label>
+                    <Input
+                        id="apellidos"
+                        name="apellidos"
+                        className={`form-control ${formik.errors.apellidos ? 'is-invalid' : ''}`}
+                        onChange={formik.handleChange}
+                        value={formik.values.apellidos}  
+                    />
+                    {
+                        formik.errors.apellidos &&
+                        <div className="invalid-tooltip">{formik.errors.apellidos}</div>
                     }
                 </Col>
                 <Col xs="12" md="2">

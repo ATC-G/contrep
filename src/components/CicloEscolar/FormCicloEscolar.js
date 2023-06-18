@@ -364,25 +364,25 @@ export default function FormCicloEscolar(){
                 </Col>
             </Row>
             <hr />
-                <div className="d-flex justify-content-end">
-                    <Button
-                        color="success"
-                        className="btn btn-success"
-                        type="submit"
-                    >
-                        {
-                            formik.values.id ? 'Actualizar' : 'Guardar'
-                        }                    
-                    </Button>
-                    {formik.values.id && <Button
-                        color="link"
-                        type="button"
-                        className="text-danger"
-                        onClick={() => {}}  
-                    >
-                        Cancelar                    
-                    </Button>}
-                </div>
+            <div className="d-flex justify-content-end">
+                <Button
+                    color="success"
+                    className="btn btn-success"
+                    type="submit"
+                >
+                    {
+                        formik.values.id ? 'Actualizar' : 'Guardar'
+                    }                    
+                </Button>
+                {formik.values.id && <Button
+                    color="link"
+                    type="button"
+                    className="text-danger"
+                    onClick={() => {}}  
+                >
+                    Cancelar                    
+                </Button>}
+            </div>
         </Form>
         
     )

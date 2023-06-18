@@ -52,7 +52,6 @@ export async function del(url, config = {}) {
 }
 
 export async function postFile(url, data, config = {}) {
-    console.log('entro')
     return axiosApi
       .post(url, { ...data }, { 
             headers: {
@@ -60,4 +59,11 @@ export async function postFile(url, data, config = {}) {
             }
        })
       .then(response => response.data);
+}
+
+export async function getAll(urls) {
+    return Promise.all(urls.map(fetchData)) 
+    function fetchData(url){
+        return get(url)
+    }
 }

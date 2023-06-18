@@ -102,11 +102,11 @@ export default function EditReferencia({open, setOpen, referencia, setReloadList
                         <SimpleDate 
                             date={formik.values.fechaLimite}
                             setDate={value=>{ 
-                            if(value.length > 0){
-                                formik.setFieldValue(`fechaLimite`, value[0])
-                            }else{
-                                formik.setFieldValue(`fechaLimite`, '')
-                            }                                                          
+                                if(value.length > 0){
+                                    formik.setFieldValue(`fechaLimite`, value[0])
+                                }else{
+                                    formik.setFieldValue(`fechaLimite`, '')
+                                }                                                          
                             }}
                         />
                         {
