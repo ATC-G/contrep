@@ -24,6 +24,7 @@ export default function FormCicloEscolar(){
         colegioId: '',
         fechaInicio:'',
         fechaFin: '',
+        generaReferencia: true,
         fechaPagos:[{
             year: '',
             mes: '',
@@ -78,6 +79,7 @@ export default function FormCicloEscolar(){
         }),
         onSubmit: async (values) => {
             //validaciones antes de enviarlo
+            console.log(values)
             setShowLoad(true)
            if(values.id){
             //update
@@ -129,6 +131,7 @@ export default function FormCicloEscolar(){
                     colegioId: result.colegioId,
                     fechaInicio:moment(result.fechaInicio, 'YYYY-MM-DD').toDate(),
                     fechaFin: moment(result.fechaFin, 'YYYY-MM-DD').toDate(),
+                    generaReferencia: result.generaReferencia ?? true,
                     fechaPagos:result.fechaPagos.map((fp) => ({
                         id: fp.id,
                         interes: fp.interes, 
@@ -163,6 +166,7 @@ export default function FormCicloEscolar(){
             console.log(error)
         }
     }
+    console.log(formik.values)
 
     const handleChange = value => {
         setColegio(value);
@@ -201,20 +205,6 @@ export default function FormCicloEscolar(){
                     }     
                 </Col>
                 <Col xs="12" md="4">
-                    <Label htmlFor="nombre" className="mb-0">Nombre</Label>
-                    <Input
-                        id="nombre"
-                        name="nombre"
-                        className={`form-control ${formik.errors.nombre ? 'is-invalid' : ''}`}
-                        onChange={formik.handleChange}
-                        value={formik.values.nombre}  
-                    />         
-                    {
-                        formik.errors.nombre &&
-                        <div className="invalid-tooltip d-block">{formik.errors.nombre}</div>
-                    }     
-                </Col>
-                <Col xs="12" md="4">
                     <Label className="mb-0">Fecha inicio a Fecha fin</Label>
                     <SimpleDate 
                         date={fecha}
@@ -239,7 +229,32 @@ export default function FormCicloEscolar(){
                         (formik.errors.fechaInicio || formik.errors.fechaFin) &&
                         <div className="invalid-tooltip d-block">{FIELD_REQUIRED}</div>
                     } 
-                </Col>                                     
+                </Col>  
+                <Col xs="12" md="2">
+                    <Label htmlFor="nombre" className="mb-0">Nombre</Label>
+                    <Input
+                        id="nombre"
+                        name="nombre"
+                        className={`form-control ${formik.errors.nombre ? 'is-invalid' : ''}`}
+                        onChange={formik.handleChange}
+                        value={formik.values.nombre}  
+                    />         
+                    {
+                        formik.errors.nombre &&
+                        <div className="invalid-tooltip d-block">{formik.errors.nombre}</div>
+                    }     
+                </Col>
+                <Col xs="12" md="2">
+                    <Label htmlFor="generaReferencia" className="mb-0 d-block">Genera referencia</Label>
+                    <Input
+                        id="generaReferencia"
+                        type="checkbox"
+                        name="generaReferencia"
+                        onChange={e => formik.setFieldValue('generaReferencia', e.target.checked)}
+                        checked={formik.values.generaReferencia}  
+                    />   
+                </Col>
+                                                   
             </Row>
             {
                 formik.errors.fechaPagos && !Array.isArray(formik.errors.fechaPagos) &&
