@@ -37,7 +37,7 @@ function Alumnos(){
     let q = Object.keys(query).map(key=>`${key}=${query[key]}`).join("&")
     try {
         const response = await getAlumnosList(`?${q}`);
-        console.log(response)
+        //console.log(response)
         setItems(response.data)
         setTotalPaginas(response.totalPages)
         setTotalRegistros(response.totalRecords)
@@ -114,8 +114,6 @@ function Alumnos(){
         Header: 'Cod. Familia',
         accessor: 'razonSocial',
         Cell: ({value}) => {
-          console.log(razonSocialOpt)
-          console.log(value)
           return razonSocialOpt.find(rz=>rz.value === value)?.familia
         }
       },

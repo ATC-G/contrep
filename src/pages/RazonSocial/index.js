@@ -62,7 +62,7 @@ function RazonSocial(){
     const columns = useMemo(
         () => [
           {
-            Header: 'Nombre',
+            Header: 'Razón social',
             accessor: 'nombre', // accessor is the "key" in the data
           },
           {
@@ -70,8 +70,8 @@ function RazonSocial(){
             accessor: 'rfc',
           },
           {
-            Header: 'Régimen',
-            accessor: 'regimen',
+            Header: 'Apellido de familia',
+            accessor: 'apellido',
           },
           {
             id: 'acciones',

@@ -37,21 +37,21 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
         try {
             const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
             if(response.data.length > 0){
-                //setFamiliaAllOpt(response.data)
-                setFamiliaOpt(response.data.map(rz=>({
-                    label: `${rz.familia} - ${rz.apellido}`, 
-                    value: rz.id, 
-                    codigo: rz.rfc, 
-                    apellido: rz.apellido
-                })))
+                setFamiliaAllOpt(response.data)
+                // setFamiliaOpt(response.data.map(rz=>({
+                //     label: `${rz.familia} - ${rz.apellido}`, 
+                //     value: rz.id, 
+                //     codigo: rz.rfc, 
+                //     apellido: rz.apellido
+                // })))
             }else{
-                setFamiliaOpt([])
+                setFamiliaAllOpt([])
             }        
         } catch (error) {
             let message  = ERROR_SERVER;
             message = extractMeaningfulMessage(error, message)
             toast.error(message);
-            setFamiliaOpt([])
+            setFamiliaAllOpt([])
         }
     }
 
@@ -147,10 +147,18 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
         if(value){           
             formik.setFieldValue('colegio', value.value) 
             fetchCiclosByColegio(value);
+            setFamiliaOpt(familiaAllOpt.map(rz=>({
+                label: `${rz.familia} - ${rz.apellido}`, 
+                value: rz.id, 
+                codigo: rz.rfc, 
+                apellido: rz.apellido
+            })))
         }else{
             formik.setFieldValue('colegio', '') 
-            formik.setFieldValue('ciclo', '')
+            setFamiliaOpt([])
         }        
+        formik.setFieldValue('ciclo', '')
+        formik.setFieldValue('familia', '')
     }
     return (
         <Form

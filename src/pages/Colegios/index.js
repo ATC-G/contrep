@@ -63,6 +63,10 @@ function Colegio(){
             accessor: 'nombre',
           },
           {
+            Header: 'Convenio',
+            accessor: 'convenio',
+          },
+          {
             id: 'acciones',
             Header: "Acciones",
             Cell: ({row}) => (

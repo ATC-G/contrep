@@ -16,7 +16,8 @@ export default function FormColegio({item, setItem, setReloadList}){
         initialValues: {
             id: item?.id ?? '',
             codigo: item?.codigo ?? '',
-            nombre:item?.nombre ?? '',     
+            nombre:item?.nombre ?? '', 
+            convenio: item?.convenio ?? '',    
             direccion: {
                 calle: item?.direccion?.calle ?? '',
                 numero: item?.direccion?.numero ?? '',
@@ -30,15 +31,16 @@ export default function FormColegio({item, setItem, setReloadList}){
         validationSchema: Yup.object({
             nombre: Yup.string().required(FIELD_REQUIRED),
             codigo: Yup.string().required(FIELD_REQUIRED),
+            convenio: Yup.string().required(FIELD_REQUIRED),
         }),
         onSubmit: async (values) => {
             setIsSubmit(true)
             //validaciones antes de enviarlo
-            console.log(values)
+            //console.log(values)
             if(values.id){
                 //update
                 try {
-                    let response = await updateColegio(values, values.codigo)
+                    let response = await updateColegio(values, values.id)
                     if(response){
                         toast.success(UPDATE_SUCCESS);
                         setReloadList(true)
@@ -118,6 +120,20 @@ export default function FormColegio({item, setItem, setReloadList}){
                     {
                        formik.errors.nombre &&
                         <div className="invalid-tooltip">{formik.errors.nombre}</div>
+                    }
+                </Col>
+                <Col xs="12" md="3">
+                    <Label htmlFor="convenio" className="mb-0">Convenio</Label>
+                    <Input
+                        id="convenio"
+                        name="convenio"
+                        className={`form-control ${formik.errors.convenio ? 'is-invalid' : ''}`}
+                        onChange={formik.handleChange}
+                        value={formik.values.convenio}  
+                    />
+                    {
+                       formik.errors.convenio &&
+                        <div className="invalid-tooltip">{formik.errors.convenio}</div>
                     }
                 </Col>
             </Row>    

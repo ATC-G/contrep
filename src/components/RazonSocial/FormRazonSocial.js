@@ -1,5 +1,5 @@
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Button, Col, Form, Input, Label, Row } from "reactstrap";
 import * as Yup from "yup";
@@ -8,10 +8,25 @@ import { saveRazonSocial, updateRazonSocial } from "../../helpers/razonsocial";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import SubmitingForm from "../Loader/SubmitingForm";
 import Select from 'react-select';
+import { getColegiosList } from "../../helpers/colegios";
 
 export default function FormRazonSocial({item, setItem, setReloadList}){
     const [isSubmit, setIsSubmit] = useState(false);
     const [tipoObj, setTipoObj] = useState(null)
+    const [colegioOpt, setColegioOpt] = useState([]);
+
+    const fetchColegios = async () => {
+        try {
+            const response = await getColegiosList();
+            setColegioOpt(response.map(r=>({value: r.id, label: r.nombre})))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        fetchColegios();
+    }, [])
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -26,6 +41,7 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             familia: item?.familia ?? '',
             apellido:item?.apellido ?? '',
             padre:  item?.padre ?? '',
+            colegioId: item?.colegioId ?? '',
         },
         validationSchema: Yup.object({
             nombre: Yup.string().required(FIELD_REQUIRED),
@@ -36,15 +52,16 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             familia: Yup.string().required(FIELD_REQUIRED),
             apellido: Yup.string().required(FIELD_REQUIRED),
             padre: Yup.string().required(FIELD_REQUIRED),
+            colegioId: Yup.string().required(FIELD_REQUIRED),
         }),
         onSubmit: async (values) => {
             setIsSubmit(true)
             //validaciones antes de enviarlo
-            console.log(values)
+            //console.log(values)
             if(values.id){
                 //update
                 try {
-                    let response = await updateRazonSocial(values, values.id)
+                    let response = await updateRazonSocial(values.id, values)
                     if(response){
                         toast.success(UPDATE_SUCCESS);
                         setReloadList(true)
@@ -109,7 +126,7 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             <Row>
                 <Col xs="12" md="6">
                     <Row>
-                        <Col xs="12" md="12">
+                        <Col xs="12" md="6">
                             <Label htmlFor="nombre" className="mb-0">Razón Social</Label>
                             <Input
                                 id="nombre"
@@ -121,6 +138,27 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
                             {
                                 formik.errors.nombre &&
                                 <div className="invalid-tooltip">{formik.errors.nombre}</div>
+                            }
+                        </Col>
+                        <Col xs="12" md="6">
+                            <Label htmlFor="colegioId" className="mb-0">Colegio</Label>
+                            <Select 
+                                classNamePrefix="select2-selection"
+                                placeholder={SELECT_OPTION}
+                                options={colegioOpt} 
+                                value={formik.values.colegioId ? {value: formik.values.colegioId, label: colegioOpt.find(it=>it.value===formik.values.colegioId)?.label ?? ''} : null}
+                                onChange={value=>{
+                                    if(value){           
+                                        formik.setFieldValue('colegioId', value.value) 
+                                    }else{
+                                        formik.setFieldValue('colegioId', '') 
+                                    } 
+                                }}
+                                isClearable
+                            />
+                            {
+                                formik.errors.colegioId &&
+                                <div className="invalid-tooltip d-block">{formik.errors.colegioId}</div>
                             }
                         </Col>
                         <Col xs="12" md="6">
@@ -175,7 +213,6 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
                                 onChange={handleChange}
                                 isClearable
                             />
-                            {console.log(formik.errors)}
                             {
                             formik.errors.tipo &&
                                 <div className="invalid-tooltip d-block">{formik.errors.tipo}</div>
