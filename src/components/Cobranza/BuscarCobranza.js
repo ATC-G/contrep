@@ -9,7 +9,8 @@ import { getRazonSocialQuery } from "../../helpers/razonsocial";
 import { getColegiosList } from "../../helpers/colegios";
 import { getCiclosByColegio } from "../../helpers/ciclos";
 
-export default function BuscarCobranza({setLoading, setAllItems, reload, setReload}){
+export default function BuscarCobranza({setLoading, setAllItems, reload, setReload, setBuildArray}){
+    const [familiaAllOpt, setFamiliaAllOpt] = useState([]);
     const [familiaOpt, setFamiliaOpt] = useState([]);
     const [searchF, setSearchF] = useState(null)
     const [colegioOBj, setColegioObj] = useState(null)
@@ -21,20 +22,15 @@ export default function BuscarCobranza({setLoading, setAllItems, reload, setRelo
         try {
             const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
             if(response.data.length > 0){
-                setFamiliaOpt(response.data.map(rz=>({
-                    label: `${rz.familia} - ${rz.apellido}`, 
-                    value: rz.id, 
-                    codigo: rz.rfc, 
-                    apellido: rz.apellido
-                })))
+                setFamiliaAllOpt(response.data)
             }else{
-                setFamiliaOpt([])
+                setFamiliaAllOpt([])
             }        
         } catch (error) {
             let message  = ERROR_SERVER;
             message = extractMeaningfulMessage(error, message)
             toast.error(message);
-            setFamiliaOpt([])
+            setFamiliaAllOpt([])
         }
     }
     const fetchColegios = async () => {
@@ -61,6 +57,7 @@ export default function BuscarCobranza({setLoading, setAllItems, reload, setRelo
     useEffect(() => {
         if(!searchF){
             setAllItems([])
+            setBuildArray(true);
         }
     }, [searchF])
 
@@ -68,16 +65,19 @@ export default function BuscarCobranza({setLoading, setAllItems, reload, setRelo
         setLoading(true)
         try {
           const response = await getReferenciasByFamily(searchF.codigo)
-          console.log(response)
+          //console.log(response)
           if(response.length > 0){
               setAllItems(response)
+              setBuildArray(true)
+          }else{
+            setAllItems([])
+              setBuildArray(true)
           }
           setLoading(false)
         } catch (error) {
             let message  = ERROR_SERVER;
             message = extractMeaningfulMessage(error, message)
             toast.error(message);
-            setAllItems([])
             setLoading(false)
         }
     }
@@ -87,7 +87,7 @@ export default function BuscarCobranza({setLoading, setAllItems, reload, setRelo
             const q = `${value.value}?PageNumber=1&PageSize=100`
             const response = await getCiclosByColegio(q)
             if(response.data.length > 0){
-                console.log(response.data)
+                //console.log(response.data)
                 setCicloOpt(response.data.map(it=>({value: it.id, label: it.nombre})))      
             }
         } catch (error) {
@@ -99,6 +99,18 @@ export default function BuscarCobranza({setLoading, setAllItems, reload, setRelo
         setColegioObj(value);
         if(value){
             fetchCiclosByColegio(value);
+            setFamiliaOpt(familiaAllOpt.filter(it=>it.colegioId === value.value).map(rz=>({
+                label: `${rz.familia} - ${rz.apellido}`, 
+                value: rz.id, 
+                codigo: rz.rfc, 
+                apellido: rz.apellido
+            })))
+        }else{
+            setSearchF(null)
+            setCicloObj(null)
+            setFamiliaOpt([])
+            setBuildArray(true)
+            setAllItems([])
         }      
     }
 

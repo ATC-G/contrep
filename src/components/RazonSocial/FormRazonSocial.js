@@ -11,8 +11,8 @@ import Select from 'react-select';
 import { getColegiosList } from "../../helpers/colegios";
 
 export default function FormRazonSocial({item, setItem, setReloadList}){
+    console.log(item)
     const [isSubmit, setIsSubmit] = useState(false);
-    const [tipoObj, setTipoObj] = useState(null)
     const [colegioOpt, setColegioOpt] = useState([]);
 
     const fetchColegios = async () => {
@@ -103,7 +103,6 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
         formik.resetForm();
     }
     const handleChange = value => {
-        setTipoObj(value);
         if(value){
             formik.setFieldValue('tipo', value.value)
         }else{
@@ -209,7 +208,7 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
                                 classNamePrefix="select2-selection"
                                 placeholder={SELECT_OPTION}
                                 options={[{value: 'Fisica', label: 'Física'}, {value: 'Moral', label: 'Moral'}]} 
-                                value={tipoObj}
+                                value={formik.values.tipo ? {label: formik.values.tipo, value: formik.values.tipo}: null}
                                 onChange={handleChange}
                                 isClearable
                             />

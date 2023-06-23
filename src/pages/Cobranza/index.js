@@ -8,9 +8,9 @@ import CardBasic from "../../components/Common/CardBasic";
 import SimpleLoad from "../../components/Loader/SimpleLoad";
 import SubmitingForm from "../../components/Loader/SubmitingForm";
 import SimpleTable from "../../components/Tables/SimpleTable";
-import { ERROR_SERVER, SUCCESS_REQUEST, UPDATE_SUCCESS } from "../../constants/messages";
+import { ERROR_SERVER, UPDATE_SUCCESS } from "../../constants/messages";
 import { getColegiosList } from "../../helpers/colegios";
-import { updateReferencia, updateReferencias } from "../../helpers/referencia";
+import { updateReferencia } from "../../helpers/referencia";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import { numberFormat } from "../../utils/numberFormat";
 import ExportExcel from "../../utils/exportexcel";
@@ -35,6 +35,7 @@ function Cobranza(){
         title: "",
         children: "",
     })
+    const [buildArray, setBuildArray] = useState(true)
 
     const fetchColegios = async () => {
         try {
@@ -44,48 +45,51 @@ function Cobranza(){
             console.log(error)
         }
     }
+
     useEffect(() => {
-        if(allItems.length > 0){
-            setColegioSelected(allItems[0].colegio)
-            const currentRefs = [...allItems[0].referencias];
-            if(currentRefs.some(cf=>cf.anual && cf.estatus==='pagada')){
-                setIsAnualidadPagada(true)
+        if(buildArray){
+            if(allItems.length > 0){
+                setColegioSelected(allItems[0].colegio)
+                const currentRefs = [...allItems[0].referencias];
+                if(currentRefs.some(cf=>cf.anual && cf.estatus==='pagada')){
+                    setIsAnualidadPagada(true)
+                }
+                setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
+                    {
+                        id: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({id : it.id})),
+                        mes: rf.mes,
+                        year: rf.year,
+                        anual: rf.anual,
+                        referenciaBancaria: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({referenciaBancaria : it.referenciaBancaria})),
+                        monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
+                        fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
+                        estatus: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({estatus : it.estatus})),
+                        isActive: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({isActive : it.isActive})),
+                        fechaPago: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaPago : it.fechaPago})),
+                        fechaCreacion: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaCreacion : it.fechaCreacion})),
+                    }
+                )))
+    
+                const data = [];
+                allItems[0].referencias.forEach(element => {
+                    const obj = {
+                        "Mes": element.repetir ? '' : element.mes,
+                        "Concepto de pago": element.referenciaBancaria,
+                        "Monto": element.monto,
+                        "Estatus": element.estatus,
+                        "FechaPago": element.fechaPago    
+                    }
+                    data.push(obj)
+                })
+                setDataSet(data)
+            }else{
+                setItems([])
+                setColegioSelected(null)
             }
-            setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
-                {
-                    id: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({id : it.id})),
-                    mes: rf.mes,
-                    year: rf.year,
-                    anual: rf.anual,
-                    referenciaBancaria: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({referenciaBancaria : it.referenciaBancaria})),
-                    monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
-                    fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
-                    estatus: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({estatus : it.estatus})),
-                    isActive: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({isActive : it.isActive})),
-                    fechaPago: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaPago : it.fechaPago})),
-                    fechaCreacion: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaCreacion : it.fechaCreacion})),
-                }
-            )))
-
-            const data = [];
-            allItems[0].referencias.forEach(element => {
-                const obj = {
-                    "Mes": element.repetir ? '' : element.mes,
-                    "Concepto de pago": element.referenciaBancaria,
-                    "Monto": element.monto,
-                    "Estatus": element.estatus,
-                    "FechaPago": element.fechaPago
-
-                }
-                data.push(obj)
-            })
-            setDataSet(data)
-            //setItems(allItems[0].referencias) 
-        }else{
-            setItems([])
-            setColegioSelected(null)
+            setBuildArray(false)
         }
-    }, [allItems])
+        
+    }, [buildArray, allItems])
     
     const handleOperation = (type, row, idx) => {
         switch(type){
@@ -358,6 +362,7 @@ function Cobranza(){
                         setAllItems={setAllItems}
                         reload={reload}
                         setReload={setReload}
+                        setBuildArray={setBuildArray}
                     />
                 </Col>
             </Row>
@@ -383,7 +388,7 @@ function Cobranza(){
     }
 
     const cardHandleList = (
-        loading ?
+        (loading || buildArray) ?
         <Row>
             <Col xs="12" xl="12">
                 <SimpleLoad />

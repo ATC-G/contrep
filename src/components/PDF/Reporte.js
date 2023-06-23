@@ -85,7 +85,7 @@ function Reporte({pdfData}){
                     <Image style={styles.logoCotrep} src={logoCotrep} />
                 </View>
                 <View style={{marginTop: 10, display: 'block'}}>
-                    <Text style={{fontSize: 10, fontWeight: 900}}>Convenio: 00085903</Text>
+                    <Text style={{fontSize: 10, fontWeight: 900}}>Convenio: {pdfData.convenio}</Text>
                 </View>
                 <View style={{marginTop: 10, display: 'flex', flexDirection: 'row'}}>
                     <Text style={{fontSize: 10, width: 150}}>5</Text>

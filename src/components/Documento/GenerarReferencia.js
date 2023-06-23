@@ -27,7 +27,11 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
     const fetchColegios = async () => {
         try {
             const response = await getColegiosList();
-            setColegioOpt(response.map(r=>({value: r.id, label: r.nombre})))
+            setColegioOpt(response.map(r=>({
+                value: r.id, 
+                label: r.nombre,
+                convenio: r.convenio
+            })))
         } catch (error) {
             console.log(error)
         }
@@ -38,12 +42,6 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
             const response = await getRazonSocialQuery(`?PageNumber=0&PageSize=1000`);
             if(response.data.length > 0){
                 setFamiliaAllOpt(response.data)
-                // setFamiliaOpt(response.data.map(rz=>({
-                //     label: `${rz.familia} - ${rz.apellido}`, 
-                //     value: rz.id, 
-                //     codigo: rz.rfc, 
-                //     apellido: rz.apellido
-                // })))
             }else{
                 setFamiliaAllOpt([])
             }        
@@ -129,7 +127,7 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
             const q = `${value.value}?PageNumber=1&PageSize=100`
             const response = await getCiclosByColegio(q)
             if(response.data.length > 0){
-                console.log(response.data)
+                //console.log(response.data)
                 setCicloOpt(response.data.map(it=>({value: it.id, label: it.nombre})))
                 setTextColegio(FIELD_REQUIRED)                
             }else{
@@ -144,21 +142,31 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
 
     const handleChange = value => {
         setColegioObj(value);
-        if(value){           
+        if(value){        
             formik.setFieldValue('colegio', value.value) 
             fetchCiclosByColegio(value);
-            setFamiliaOpt(familiaAllOpt.map(rz=>({
+            setFamiliaOpt(familiaAllOpt.filter(it=>it.colegioId === value.value).map(rz=>({
                 label: `${rz.familia} - ${rz.apellido}`, 
                 value: rz.id, 
                 codigo: rz.rfc, 
                 apellido: rz.apellido
             })))
+            setPdfData(prev=>({
+                ...prev,
+                convenio: value.convenio
+            }))
         }else{
             formik.setFieldValue('colegio', '') 
+            formik.setFieldValue('ciclo', '')
+            formik.setFieldValue('familia', '')
+            setFamiliaObj(null)
+            setCicloObj(null)
             setFamiliaOpt([])
-        }        
-        formik.setFieldValue('ciclo', '')
-        formik.setFieldValue('familia', '')
+            setPdfData(prev=>({
+                ...prev,
+                convenio: ''
+            }))
+        } 
     }
     return (
         <Form

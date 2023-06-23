@@ -161,7 +161,7 @@ function Documento(){
       setLoading(true)
       try {
         const response = await getReferenciasByFamily(searchF.codigo)
-        console.log(response)
+        //console.log(response)
         if(response.length > 0){
             setAllItems(response)
         }
@@ -261,7 +261,7 @@ function Documento(){
           <Row>
               <Col xl="12">      
                   {!!items.length && <div className="d-flex justify-content-end mb-1">
-                    <PDFDownloadLink document={<Reporte pdfData={pdfData} />} fileName="somename.pdf">
+                    <PDFDownloadLink document={<Reporte pdfData={pdfData} />} fileName={`${pdfData.convenio}.pdf`}>
                       {({ blob, url, loading, error }) =>
                         loading ? <Button color="secondary" outline disabled type="button"><i className="bx bxs-file-pdf" /> Cargando documento</Button> : 
                         <Button color="secondary" outline type="button"><i className="bx bxs-file-pdf" /> Descargar</Button>
