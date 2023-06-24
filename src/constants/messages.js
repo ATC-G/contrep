@@ -8,6 +8,7 @@ export const BAD_REQUEST = "Solicitud incorrecta!. Contactar con el administrado
 export const CHECK_CREDENTIALS = "Por favor revisar credenciales"
 export const CAMPO_MAYOR_CERO = "Campo mayor a cero"
 export const FIELD_NUMERIC = "Campo numérico"
+export const FIELD_INTEGER = "Campo numérico entero"
 export const CAMPO_MENOR_CIEN = "Campo menor o igual a 100"
 export const FIELD_EMAIL = "Correo electrónico no válido"
 export const SUCCESS_REQUEST = "Solicitud exitosa"

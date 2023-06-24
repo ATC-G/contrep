@@ -2,7 +2,7 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { Button, Col, Form, Input, Label, Row } from "reactstrap";
 import * as Yup from "yup";
-import { ERROR_SERVER, FIELD_NUMERIC, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION, UPDATE_SUCCESS } from "../../constants/messages";
+import { ERROR_SERVER, FIELD_INTEGER, FIELD_NUMERIC, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION, UPDATE_SUCCESS } from "../../constants/messages";
 import Select from 'react-select';
 import { saveAlumnos, updateAlumnos } from "../../helpers/alumnos";
 import { toast } from "react-toastify";
@@ -35,7 +35,7 @@ export default function FormAlumnos({item, setItem, setReloadList, colegioOpt, r
             nombre: Yup.string().required(FIELD_REQUIRED), 
             apellidos: Yup.string().required(FIELD_REQUIRED), 
             colegio: Yup.string().required(FIELD_REQUIRED),
-            mensualidad: Yup.number().typeError(FIELD_NUMERIC).required(FIELD_REQUIRED),            
+            mensualidad: Yup.number().integer(FIELD_INTEGER).typeError(FIELD_NUMERIC).required(FIELD_REQUIRED),            
             razonSocial: Yup.string().required(FIELD_REQUIRED),  
             email: Yup.string().email(FIELD_EMAIL).required(FIELD_REQUIRED),            
         }),
@@ -84,7 +84,6 @@ export default function FormAlumnos({item, setItem, setReloadList, colegioOpt, r
             }
         }
     })
-
     const resetForm = () => {
         setItem(null)
         setColegioObj(null)

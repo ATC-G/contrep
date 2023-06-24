@@ -15,7 +15,7 @@ import { numberFormat } from "../../utils/numberFormat";
 import moment from "moment";
 import { getColegiosList } from "../../helpers/colegios";
 import EditReferencia from "../../components/Documento/EditReferencia";
-import { Document, PDFDownloadLink, Page } from "@react-pdf/renderer";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import Reporte from "../../components/PDF/Reporte";
 
 function Documento(){  
@@ -113,7 +113,9 @@ function Documento(){
           console.log(error)
       }
     }
-    
+      
+    console.log(allItems)
+    console.log(pdfData)
     useEffect(() => {
           if(allItems.length > 0){
             setColegioSelected(allItems[0].colegio)
@@ -133,7 +135,7 @@ function Documento(){
             const currentAlumnos = [...allItems[0].alumnos]
             setPdfData(prev=>({
               ...prev,
-              alumnos: currentAlumnos.map(it=>({nombre: it.nombre, mensualidad: it.mensualidad})),
+              alumnos: currentAlumnos.map(it=>({nombre: it.nombre, mensualidad: it.mensualidad, matricula: it.matricula})),
               referencias: refs
             }))
         }else{
@@ -215,7 +217,7 @@ function Documento(){
       const currentAlumnos = [...allItems.filter(it=>it.colegio===idColegio)[0].alumnos];
       setPdfData(prev=>({
         ...prev,
-        alumnos: currentAlumnos.map(it=>({nombre: it.nombre, mensualidad: it.mensualidad})),
+        alumnos: currentAlumnos.map(it=>({nombre: it.nombre, mensualidad: it.mensualidad, matricula: it.matricula})),
         referencias: refs
       }))
     }
@@ -243,8 +245,9 @@ function Documento(){
               {
                 pdfData.alumnos.map((it, idx) => (
                   <Row key={`alumnos-${idx}`}>
-                    <Col xs="8" md="3">{it.nombre}</Col>
-                    <Col xs="8" md="3">{numberFormat(it.mensualidad)}</Col>
+                    <Col xs="3" md="2">{it.matricula}</Col>
+                    <Col xs="5" md="3">{it.nombre}</Col>
+                    <Col xs="4" md="3">{numberFormat(it.mensualidad)}</Col>
                   </Row>
                 ))
               }

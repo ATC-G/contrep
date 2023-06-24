@@ -63,14 +63,18 @@ function Reporte({pdfData}){
         const formatter = new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
-          
-            // These options are needed to round to whole numbers if that's what you want.
-            //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-            //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
         });
         if(number) return formatter.format(number)
         return '';
     }
+    const capitalizeFirstLetterOfEachWord = (sentence) => {
+        var words = sentence.toLowerCase().split(" ");
+        for (var i = 0; i < words.length; i++) {
+            var word = words[i];
+            words[i] = word.charAt(0).toUpperCase() + word.slice(1);
+        }
+        return words.join(" ");
+      }
 
     return (
         <Document>
@@ -88,14 +92,14 @@ function Reporte({pdfData}){
                     <Text style={{fontSize: 10, fontWeight: 900}}>Convenio: {pdfData.convenio}</Text>
                 </View>
                 <View style={{marginTop: 10, display: 'flex', flexDirection: 'row'}}>
-                    <Text style={{fontSize: 10, width: 150}}>5</Text>
+                    <Text style={{fontSize: 10, width: 150}}></Text>
                     <Text style={{fontSize: 10}}>Chávez Estévez</Text>
                 </View>
                 {
                     pdfData.alumnos.map((al, idxA) => (
                     <View key={`alumnos-${idxA}`} style={{marginTop: 5, display: 'flex', flexDirection: 'row'}}>
-                        <Text style={{fontSize: 10, width: 150}}></Text>
-                        <Text style={{fontSize: 10, width: 150}}>{al.nombre}</Text>
+                        <Text style={{fontSize: 10, width: 150}}>{al.matricula}</Text>
+                        <Text style={{fontSize: 10, width: 150}}>{capitalizeFirstLetterOfEachWord(al.nombre)}</Text>
                         <Text style={{fontSize: 10}}>{formatNumber(al.mensualidad)}</Text>
                     </View>
                     ))
