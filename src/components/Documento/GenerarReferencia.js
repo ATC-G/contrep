@@ -12,7 +12,7 @@ import { getCiclosByColegio } from "../../helpers/ciclos";
 import SubmitingForm from "../Loader/SubmitingForm";
 import { getRazonSocialQuery } from "../../helpers/razonsocial";
 
-export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfData}){
+export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfData, setColegioId, setCicloId}){
     const [familiaOBj, setFamiliaObj] = useState(null)
     const [familiaAllOpt, setFamiliaAllOpt] = useState([]);
     const [familiaOpt, setFamiliaOpt] = useState([]);
@@ -78,10 +78,8 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
             async function callApi() {
                 try {
                     let response = await generateReferencia(urlPlus)
-                    console.log(response)
                     if(response){
                         toast.success(SAVE_SUCCESS);
-                        resetForm();
                     }else{
                         toast.error(ERROR_SERVER);
                     }
@@ -96,17 +94,12 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
             callApi()
         }
     })
-    const resetForm = () => {
-        setFamiliaObj(null)
-        setColegioObj(null)
-        formik.resetForm();
-    }
 
     const handleChangeFamilia = value => {
         setFamiliaObj(value);
         setSearchF(value)
         if(value){
-            formik.setFieldValue('familia', value.codigo)
+            formik.setFieldValue('familia', value.value)
             setPdfData(prev=>({
                 ...prev,
                 familia: value.apellido
@@ -153,8 +146,10 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
             })))
             setPdfData(prev=>({
                 ...prev,
-                convenio: value.convenio
+                convenio: value.convenio,
+                colegio: value.label
             }))
+            setColegioId(value.value)
         }else{
             formik.setFieldValue('colegio', '') 
             formik.setFieldValue('ciclo', '')
@@ -164,8 +159,10 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
             setFamiliaOpt([])
             setPdfData(prev=>({
                 ...prev,
-                convenio: ''
+                convenio: '',
+                colegio: ''
             }))
+            setColegioId(null)
         } 
     }
     return (
@@ -221,8 +218,18 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
                             setCicloObj(value)
                             if(value){
                                 formik.setFieldValue('ciclo', value.value)
+                                setCicloId(value.value)
+                                setPdfData(prev=>({
+                                    ...prev,
+                                    ciclo: value.label
+                                }))
                             }else{
                                 formik.setFieldValue('ciclo', '')
+                                setCicloId(null)
+                                setPdfData(prev=>({
+                                    ...prev,
+                                    ciclo: ''
+                                }))
                             }
                         }}
                         isClearable

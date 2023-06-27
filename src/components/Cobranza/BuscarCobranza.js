@@ -17,6 +17,8 @@ export default function BuscarCobranza({setLoading, setAllItems, reload, setRelo
     const [colegioOpt, setColegioOpt] = useState([]);
     const [cicloObj, setCicloObj] = useState(null)
     const [cicloOpt, setCicloOpt] = useState([]);
+    const [colegioId, setColegioId] = useState(null)
+    const [cicloId, setCicloId] = useState(null)
 
     const fetchRazonesSocialesApi = async () => {
         try {
@@ -64,7 +66,8 @@ export default function BuscarCobranza({setLoading, setAllItems, reload, setRelo
     const buscar = async () => {
         setLoading(true)
         try {
-          const response = await getReferenciasByFamily(searchF.codigo)
+          const q = `razonSocialId=${searchF.value}&colegioId=${colegioId}&cicloId=${cicloId}`
+          const response = await getReferenciasByFamily(`?${q}`)
           //console.log(response)
           if(response.length > 0){
               setAllItems(response)
@@ -105,12 +108,14 @@ export default function BuscarCobranza({setLoading, setAllItems, reload, setRelo
                 codigo: rz.rfc, 
                 apellido: rz.apellido
             })))
+            setColegioId(value.value)
         }else{
             setSearchF(null)
             setCicloObj(null)
             setFamiliaOpt([])
             setBuildArray(true)
             setAllItems([])
+            setColegioId(null)
         }      
     }
 
@@ -147,6 +152,11 @@ export default function BuscarCobranza({setLoading, setAllItems, reload, setRelo
                     value={cicloObj}
                     onChange={value=>{
                         setCicloObj(value)
+                        if(value){
+                            setCicloId(value.value)
+                        }else{
+                            setCicloId(null)
+                        }
                     }}
                     isClearable
                 />                 

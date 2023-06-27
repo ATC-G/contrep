@@ -82,9 +82,9 @@ function Reporte({pdfData}){
                 <View style={{...styles.containerFlex}}>
                     <Image style={styles.logoSantander} src={logoSantander} />
                     <View style={{textAlign: 'center', display: 'block', paddingTop: 35}}>
-                        <Text style={{fontSize: 10, margin: 'auto'}}>Referencias de Pago 2022-2023</Text>
+                        <Text style={{fontSize: 10, margin: 'auto'}}>Referencias de Pago {pdfData.ciclo}</Text>
                         <Text style={{fontSize: 10, margin: 'auto', marginTop: 5}}>Cueto Escolares S.A. de C.V.</Text>
-                        <Text style={{fontSize: 10, margin: 'auto', marginTop: 5}}>Regina</Text>
+                        <Text style={{fontSize: 10, margin: 'auto', marginTop: 5}}>{pdfData.colegio}</Text>
                     </View>
                     <Image style={styles.logoCotrep} src={logoCotrep} />
                 </View>

@@ -51,7 +51,8 @@
 }
 
 .table-bg-info-light thead {
-  background-color: #b2dbf5;
+  background-color: #2a3042;
+  color: #fff;
 }
 .table-tbody-sm tbody {
   font-size: 0.7rem;
@@ -203,10 +204,10 @@
 }
 .overlay-login{
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(233, 233, 233, 0.9);
   height: 100%;
   width: 100%;
-  opacity: 0.3;
+  opacity: 1;
   z-index: 0;
 }
 .overlay-content {

@@ -1,10 +1,10 @@
-import { Link, withRouter } from "react-router-dom"
+import { withRouter } from "react-router-dom"
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Card, CardBody, Col, Container, Form, Label, Row, Input, FormFeedback, Alert } from "reactstrap";
 
 import profile from "../../assets/images/profile-img2.png"
-import logo from "../../assets/images/logo-cotrep.png";
+import logo from "../../assets/images/logo/logoCotrep.png";
 import { postJwtLogin } from "../../helpers/auth";
 import { useState } from "react";
 import { ERROR_SERVER } from "../../constants/messages";
@@ -49,8 +49,8 @@ function Login(){
                       <Col lg="12">
                         <div className="position-relative">
                           <div className="position-absolute mt-2 ms-2 zIndex-1">
-                            <h3 className="text-white">Cotrep</h3>
-                            <h6 className="text-white d-none d-md-block">Sistema de control y administracion</h6>
+                            <img src={logo} alt="" className="img-fluid" width={150} />
+                            <h5 className="text-black d-none d-md-block fw-bold">Sistema de administración y control de colegiaturas</h5>
                           </div>
                         </div>
                         <div className="overlay-login"></div>
@@ -59,20 +59,6 @@ function Login(){
                     </Row>                    
                   </div>
                   <CardBody className="pt-0">
-                    <div>
-                      <Link to="/" className="auth-logo-light">
-                        <div className="avatar-md profile-user-wid mb-4 position-absolute">
-                          <span className="avatar-title rounded-circle bg-light">
-                            <img
-                              src={logo}
-                              alt=""
-                              className="rounded-circle"
-                              height="72"
-                            />
-                          </span>
-                        </div>
-                      </Link>
-                    </div>
                     <div className="p-2 py-5">
                       <Form
                         className="form-horizontal"
@@ -140,7 +126,7 @@ function Login(){
                 </Card>
                 <div className="mt-5 text-center">
                   <p>
-                    © {new Date().getFullYear()} Cotrep. Creado con {" "}
+                    © {new Date().getFullYear()} COTREP. Creado con {" "}
                     <i className="mdi mdi-heart text-danger" /> por ATC-G
                   </p>
                 </div>

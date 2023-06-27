@@ -166,7 +166,7 @@ export default function FormCicloEscolar(){
             console.log(error)
         }
     }
-    console.log(formik.values)
+    //console.log(formik.values)
 
     const handleChange = value => {
         setColegio(value);
@@ -176,6 +176,28 @@ export default function FormCicloEscolar(){
         }else{
             formik.setFieldValue('colegioId', '')
         }        
+    }
+
+    const reset = () => {
+        setFecha()
+        setColegio(null)
+        formik.resetForm({values: {
+            id: '',
+            nombre: '',
+            colegioId: '',
+            fechaInicio:'',
+            fechaFin: '',
+            generaReferencia: true,
+            fechaPagos:[{
+                year: '',
+                mes: '',
+                fechaLimite: '',
+                interes: '',
+                anual: false,
+                repetir: false
+            }],
+        }});
+        
     }
     return(
         <Form
@@ -393,7 +415,7 @@ export default function FormCicloEscolar(){
                     color="link"
                     type="button"
                     className="text-danger"
-                    onClick={() => {}}  
+                    onClick={reset}  
                 >
                     Cancelar                    
                 </Button>}

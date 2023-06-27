@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import SimpleBar from "simplebar-react";
 import MetisMenu from "metismenujs";
 
-import logo from "../../assets/images/logo-cotrep.png";
+import logo from "../../assets/images/logo/logoCotrep.png";
 import useLoguedUser from "../../hooks/useLoguedUser";
 
 function Sidebar(){
@@ -87,12 +87,12 @@ function Sidebar(){
         <>
           <div className="vertical-menu">
             <div className="navbar-brand-box" style={{background: 'inherit'}}>
-              <Link to="/alumnos" className="logo logo-dark">
+              <Link to="/alumnos" className="logo logo-white">
                 <span className="logo-sm">
-                  <img src={logo} alt="" height="30" className="rounded-circle" />
+                  <img src={logo} alt="" height="30" className="bg-white rounded" />
                 </span>
                 <span className="logo-lg">
-                  <img src={logo} alt="" height="50" className="rounded-circle" />
+                  <img src={logo} alt="" height="50" className="bg-white rounded" />
                 </span>
               </Link>
             </div>

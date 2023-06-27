@@ -422,33 +422,15 @@ function Cobranza(){
                 </Col>
               </Row>
               {!loading && 
-              <Row>
-                    <Col xs="12" md="10">
-                        <div className="d-flex mb-2">
-                            {
-                                allItems.map((it, idx) => (
-                                    <div key={it.id} className="pe-2">
-                                        <span 
-                                            className={`badge fs-6 ${it.colegio === colegioSelected ? 'bg-info' : 'bg-light'} cursor-pointer`}
-                                            onClick={e=>changeColegio(it.colegio)}
-                                        >
-                                            {colegioOpt.find(c=>c.id===it.colegio)?.name ??  `Colegio-${idx+1}`}
-                                        </span>
-                                    </div>       
-                                ))
-                            }
-                        </div>
-                    </Col>
+              <div>                   
                     {allItems.length > 0 && 
-                    <Col xs="12" md="2">
-                        <div className="d-flex justify-content-end">
-                            <ExportExcel 
-                                fileName={`referencias-${moment().format("DDMMYYYY")}`}
-                                excelData={dataSet}
-                            />
-                        </div>
-                    </Col>}
-              </Row>
+                    <div className="d-flex justify-content-end">
+                        <ExportExcel 
+                            fileName={`referencias-${moment().format("DDMMYYYY")}`}
+                            excelData={dataSet}
+                        />
+                    </div>}
+              </div>
               }
               
 

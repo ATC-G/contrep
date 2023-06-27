@@ -24,6 +24,8 @@ function Documento(){
     const [colegioSelected, setColegioSelected] = useState(null)
     const [items, setItems] = useState([]);
     const [searchF, setSearchF] = useState(null)
+    const [colegioId, setColegioId] = useState(null)
+    const [cicloId, setCicloId] = useState(null)
     const [colegioOpt, setColegioOpt] = useState([])
     const [openEdit, setOpenEdit] = useState(false)
     const [referencia, setReferencia] = useState(null)
@@ -32,7 +34,9 @@ function Documento(){
       familia: '',
       alumnos: [],
       convenio: '',
-      referencias: []
+      referencias: [],
+      ciclo: '',
+      colegio: ''
     })
 
     const handleEditRef = (row) => {
@@ -114,8 +118,6 @@ function Documento(){
       }
     }
       
-    console.log(allItems)
-    console.log(pdfData)
     useEffect(() => {
           if(allItems.length > 0){
             setColegioSelected(allItems[0].colegio)
@@ -162,7 +164,8 @@ function Documento(){
     const buscar = async () => {
       setLoading(true)
       try {
-        const response = await getReferenciasByFamily(searchF.codigo)
+        const q = `razonSocialId=${searchF.value}&colegioId=${colegioId}&cicloId=${cicloId}`
+        const response = await getReferenciasByFamily(`?${q}`)
         //console.log(response)
         if(response.length > 0){
             setAllItems(response)
@@ -193,6 +196,8 @@ function Documento(){
                       setSearchF={setSearchF}
                       buscar={buscar}
                       setPdfData={setPdfData}
+                      setColegioId={setColegioId}
+                      setCicloId={setCicloId}
                     />
                 </Col>
             </Row>
@@ -226,20 +231,6 @@ function Documento(){
       <>        
         {!loading && 
           <>
-            <div className="d-flex">
-              {
-                  allItems.map((it, idx) => (
-                      <div key={it.id} className="pe-2">
-                          <span 
-                              className={`badge fs-6 ${it.colegio === colegioSelected ? 'bg-info' : 'bg-light'} cursor-pointer`}
-                              onClick={e=>changeColegio(it.colegio)}
-                          >
-                              {colegioOpt.find(c=>c.id===it.colegio)?.name ??  `Colegio-${idx+1}`}
-                          </span>
-                      </div>       
-                  ))
-              }
-            </div>
             <div className="mb-4">
               <h6>{pdfData.familia}</h6>
               {
