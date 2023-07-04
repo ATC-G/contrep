@@ -50,10 +50,6 @@
   background-color: #7cb342 !important;
 }
 
-.table-bg-info-light thead {
-  background-color: #2a3042;
-  color: #fff;
-}
 .table-tbody-sm tbody {
   font-size: 0.7rem;
 }
@@ -219,4 +215,8 @@
 }
 .zIndex-1{
   z-index: 1;
+}
+.table thead tr th{
+  background-color: #2a3042!important;
+  color: #fff!important;
 }
