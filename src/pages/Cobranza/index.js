@@ -251,7 +251,7 @@ function Cobranza(){
                             >
                                 Pagar
                             </Button>
-                            <Button
+                            {/* <Button
                                 color="secondary"
                                 disabled
                                 size="sm"
@@ -272,7 +272,7 @@ function Cobranza(){
                                 disabled={mt.estatus === 'activa' || !row.original.isActive[idx].isActive}
                                 onClick={e=>mt.estatus === 'activa' ? {} : handleOperation("cancelar", row, idx)}
                             >Cancelar
-                            </Button>
+                            </Button> */}
                             <Button
                                 color="primary"
                                 size="sm"

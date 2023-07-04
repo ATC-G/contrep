@@ -29,7 +29,8 @@ export default function FormAlumnos({item, setItem, setReloadList, colegioOpt, r
             mensualidad: item?.mensualidad ?? '',
             beca: item?.beca ?? 0,
             matricula: item?.matricula ?? '',
-            razonSocial:item?.razonSocial ?? '', 
+            razonSocial:item?.razonSocial ?? '',
+            isActive: item?.isActive ?? true 
         },
         validationSchema: Yup.object({
             nombre: Yup.string().required(FIELD_REQUIRED), 
@@ -288,6 +289,16 @@ export default function FormAlumnos({item, setItem, setReloadList, colegioOpt, r
                         formik.errors.beca &&
                         <div className="invalid-tooltip">{formik.errors.beca}</div>
                     }
+                </Col>
+                <Col xs="12" md="2">
+                    <Label htmlFor="isActive" className="mb-0 d-block">Activo</Label>
+                    <Input
+                        id="isActive"
+                        type="checkbox"
+                        name="isActive"
+                        onChange={e => formik.setFieldValue('isActive', e.target.checked)}
+                        checked={formik.values.isActive}  
+                    />   
                 </Col>
             </Row>
             <hr />
