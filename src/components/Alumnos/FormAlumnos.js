@@ -27,7 +27,7 @@ export default function FormAlumnos({item, setItem, setReloadList, colegioOpt, r
             telefono: item?.telefono ?? '',
             grado: item?.grado ?? '',
             mensualidad: item?.mensualidad ?? '',
-            beca: item?.beca ?? '',
+            beca: item?.beca ?? 0,
             matricula: item?.matricula ?? '',
             razonSocial:item?.razonSocial ?? '', 
         },
@@ -43,6 +43,7 @@ export default function FormAlumnos({item, setItem, setReloadList, colegioOpt, r
             setIsSubmit(true)
             //validaciones antes de enviarlo
             console.log(values)
+            values.beca = values.beca ? values.beca : 0
            
             //service here
             if(values.id){

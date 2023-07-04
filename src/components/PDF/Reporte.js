@@ -74,7 +74,7 @@ function Reporte({pdfData}){
             words[i] = word.charAt(0).toUpperCase() + word.slice(1);
         }
         return words.join(" ");
-      }
+    }
 
     return (
         <Document>
