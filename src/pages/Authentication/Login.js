@@ -12,7 +12,7 @@ import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 
 
 function Login(){
-  const [error, setError] = useState('')
+    const [error, setError] = useState('')
     const validation = useFormik({    
         initialValues: {
           userName: "santiago.figueroa94@gmail.com" || '',
@@ -102,8 +102,7 @@ function Login(){
                           {validation.errors.password ? (
                             <FormFeedback type="invalid">{validation.errors.password}</FormFeedback>
                           ) : null}
-                        </div>
-  
+                        </div>                            
                         <div className="mt-3 d-grid">
                           {
                             validation.isSubmitting ?
