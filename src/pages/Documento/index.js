@@ -47,69 +47,6 @@ function Documento(){
       setOpenEdit(true)
     }
 
-    const columns = [
-        {
-          Header: 'Mes',
-          accessor: 'mes', // accessor is the "key" in the data
-          Cell: ({row}) => <strong>{`${row.values.mes !== 'N/A' ? row.values.mes : ''} ${(row.original.year > 0 && !row.original.anual) ? row.original.year : ''}`}</strong>,
-        },
-        {
-          Header: 'Concepto de pago',
-          accessor: 'referenciaBancaria',
-          Cell: ({row}) => (
-            <ul className="list-unstyled">
-              {row.original.referenciaBancaria.map((rB, idx) => (
-                <li key={`referenciaBancaria-${idx}`}>{rB.referenciaBancaria}</li>
-              ))}
-            </ul>            
-          )
-        },
-        {
-          Header: 'Monto',
-          accessor: 'monto',
-          Cell: ({row}) => (
-            <ul className="list-unstyled">
-              {row.original.monto.map((mt, idx) => (
-                <li key={`monto-${idx}`}>{numberFormat(mt.monto)}</li>
-              ))}
-            </ul>            
-          ),
-        },
-        {
-          Header: 'Fecha límite de pago',
-          accessor: 'fechaLimite',
-          Cell: ({row}) => (
-            <ul className="list-unstyled">
-              {row.original.fechaLimite.map((f, idx) => (
-                <li key={`fechaLimite-${idx}`}>{moment(f.fechaLimite, 'YYYY-MM-DD').format('DD/MM/YYYY')}</li>
-              ))}
-            </ul>            
-          ),
-        },
-        {
-          id: 'acciones',
-          Header: "",
-          Cell: ({row}) => (
-            <ul className="list-unstyled">
-              {row.original.id.map((f, idx) => (
-                <li key={`id-${idx}`}>
-                  <Button
-                    color="info"
-                      size="sm"
-                      className="my-1 me-1"
-                      onClick={() => handleEditRef(f)}
-                  >Editar
-                  </Button>
-                </li>
-              ))}
-            </ul>            
-          ),
-          style: {
-              width: '10%'
-          }         
-      }
-    ]
-
     const fetchColegios = async () => {
       try {
           const response = await getColegiosList();
@@ -134,14 +71,13 @@ function Documento(){
                 fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
               }
             ))
-            const apruparRefs = groupByMonth(refs)  
-            console.log(apruparRefs)          
+            const apruparRefs = groupByMonth(refs)       
             setItems(apruparRefs)
             const currentAlumnos = [...allItems[0].alumnos]
             setPdfData(prev=>({
               ...prev,
               alumnos: currentAlumnos.map(it=>({nombre: it.nombre, mensualidad: it.mensualidad, matricula: it.matricula})),
-              referencias: refs
+              referencias: apruparRefs
             }))
         }else{
             setItems([])
@@ -266,48 +202,70 @@ function Documento(){
                     </PDFDownloadLink>                    
                   </div>   }  
                   <Row>
-            <Col>
-                <div className="table-responsive">
-                    <div className="react-bootstrap-table table-responsive">
-                        <table className="table table align-middle table-nowrap table-hover table-bg-info-light bg-white">
-                            <thead>
-                                <tr>
-                                  <th>Mes</th>
-                                  <th>Concepto de pago</th>
-                                  <th>Monto</th>
-                                  <th>Fecha límite de pago</th>
-                                  <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                  items.length === 0 ? <tr><td colSpan={5}>No hay información disponible</td></tr> :
-                                  items.map((item, idx) => (
-                                    <tr key={`refs-${idx}`}>
-                                      <td><strong>{item.mes} {item.mes.toLowerCase() !== 'anualidad' && `${item.year}`}</strong></td>
-                                      <td>
-                                        <ul className="list-unstyled">
-                                          {item.data.referenciaBancaria.map((rB, idx) => (
-                                            <li key={`referenciaBancaria-${idx}`}>{rB.referenciaBancaria}</li>
-                                          ))}
-                                        </ul> 
-                                      </td>
-                                      <td></td>
-                                      <td></td>
-                                      <td></td>
-                                    </tr>
-                                  ))
-                                }
-                            </tbody>
-                            </table>
-                    </div>
-                </div>
-            </Col>
-        </Row>                         
-                  {/* <SimpleTable
-                      columns={columns}
-                      data={items} 
-                  /> */}
+                    <Col>
+                        <div className="table-responsive">
+                            <div className="react-bootstrap-table table-responsive">
+                                <table className="table table align-middle table-nowrap table-hover table-bg-info-light bg-white">
+                                    <thead>
+                                        <tr>
+                                          <th>Mes</th>
+                                          <th>Concepto de pago</th>
+                                          <th>Monto</th>
+                                          <th>Fecha límite de pago</th>
+                                          <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {
+                                          items.length === 0 ? <tr><td colSpan={5}>No hay información disponible</td></tr> :
+                                          items.map((item, idx) => (
+                                            <tr key={`refs-${idx}`}>
+                                              <td><strong>{item.mes} {item.mes.toLowerCase() !== 'anualidad' && `${item.year}`}</strong></td>
+                                              <td>
+                                                <ul className="list-unstyled">
+                                                  {item.data.referenciaBancaria.map((rB, idx) => (
+                                                    <li key={`referenciaBancaria-${idx}`}>{rB.referenciaBancaria}</li>
+                                                  ))}
+                                                </ul> 
+                                              </td>
+                                              <td>
+                                                <ul className="list-unstyled">
+                                                  {item.data.monto.map((mt, idx) => (
+                                                    <li key={`monto-${idx}`}>{numberFormat(mt.monto)}</li>
+                                                  ))}
+                                                </ul> 
+                                              </td>
+                                              <td>
+                                                <ul className="list-unstyled">
+                                                  {item.data.fechaLimite.map((f, idx) => (
+                                                    <li key={`fechaLimite-${idx}`}>{moment(f.fechaLimite, 'YYYY-MM-DD').format('DD/MM/YYYY')}</li>
+                                                  ))}
+                                                </ul>
+                                              </td>
+                                              <td>
+                                                <ul className="list-unstyled">
+                                                  {item.data.id.map((f, idx) => (
+                                                    <li key={`id-${idx}`}>
+                                                      <Button
+                                                        color="info"
+                                                          size="sm"
+                                                          className="my-1 me-1"
+                                                          onClick={() => handleEditRef(f)}
+                                                      >Editar
+                                                      </Button>
+                                                    </li>
+                                                  ))}
+                                                </ul>        
+                                              </td>
+                                            </tr>
+                                          ))
+                                        }
+                                    </tbody>
+                                  </table>
+                            </div>
+                        </div>
+                    </Col>
+                  </Row>
               </Col>            
           </Row>
         }

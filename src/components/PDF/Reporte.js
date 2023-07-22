@@ -75,7 +75,6 @@ function Reporte({pdfData}){
         }
         return words.join(" ");
     }
-
     return (
         <Document>
             <Page size="A4" style={styles.body}>
@@ -120,21 +119,21 @@ function Reporte({pdfData}){
                                 </Text>
                                 <View style={stylesTable.row2}>
                                     {
-                                        itRef.referenciaBancaria.map((itRefB, idxRefB) => (
+                                        itRef.data.referenciaBancaria.map((itRefB, idxRefB) => (
                                             <Text key={`refb-${idxRefB}`}>{itRefB.referenciaBancaria}</Text>
                                         ))
                                     }
                                 </View>
                                 <View style={stylesTable.row3}>
                                     {
-                                        itRef.monto.map((itMonto, idxMonto) => (
+                                        itRef.data.monto.map((itMonto, idxMonto) => (
                                             <Text key={`refb-${idxMonto}`}>{formatNumber(itMonto.monto)}</Text>
                                         ))
                                     }
                                 </View>
                                 <View style={stylesTable.row4}>
                                     {
-                                        itRef.fechaLimite.map((itFL, idxFL) => (
+                                        itRef.data.fechaLimite.map((itFL, idxFL) => (
                                             <Text key={`refb-${idxFL}`}>{moment(itFL.fechaLimite, 'YYYY-MM-DD').format('DD/MM/YYYY')}</Text>
                                         ))
                                     }

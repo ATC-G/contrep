@@ -19,6 +19,7 @@ import BasicDialog from "../../components/Common/BasicDialog";
 import Pagar from "../../components/Cobranza/Pagar";
 import Cancelar from "../../components/Cobranza/Cancelar";
 import EditarReferencia from "../../components/Cobranza/EditarReferencia";
+import groupByMonth from "../../utils/groupByMonth";
 
 function Cobranza(){  
     const [loading, setLoading] = useState(false)
@@ -53,8 +54,10 @@ function Cobranza(){
                 const currentRefs = [...allItems[0].referencias];
                 if(currentRefs.some(cf=>cf.anual && cf.estatus==='pagada')){
                     setIsAnualidadPagada(true)
+                }else{
+                    setIsAnualidadPagada(false)
                 }
-                setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
+                const refs = currentRefs.filter(crf => !crf.repetir).map(rf => (
                     {
                         id: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({id : it.id})),
                         mes: rf.mes,
@@ -68,7 +71,9 @@ function Cobranza(){
                         fechaPago: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaPago : it.fechaPago})),
                         fechaCreacion: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaCreacion : it.fechaCreacion})),
                     }
-                )))
+                ))
+                const apruparRefs = groupByMonth(refs)
+                setItems(apruparRefs)
                 
                 const data = [];
                 allItems[0].referencias.forEach(element => {
@@ -97,21 +102,21 @@ function Cobranza(){
                 setOpen(true)
                 setOperation({
                     title: "Pagar",
-                    children: <Pagar onHandlePayment={onHandlePagar} setOpen={setOpen}  row={row.original} idx={idx} />,
+                    children: <Pagar onHandlePayment={onHandlePagar} setOpen={setOpen}  row={row.data} idx={idx} />,
                 })
                 break;
             case "cancelar":
                 setOpen(true)
                 setOperation({
                     title: "Cancelar pago",
-                    children: <Cancelar onHandleCancelPayment={onHandleCancelPayment} setOpen={setOpen}  row={row.original} idx={idx} />,
+                    children: <Cancelar onHandleCancelPayment={onHandleCancelPayment} setOpen={setOpen}  row={row.data} idx={idx} />,
                 })
                 break; 
             case "editar":
                 setOpen(true)
                 setOperation({
                     title: "Editar referencia",
-                    children: <EditarReferencia onHandleEditar={onHandleEditar} setOpen={setOpen}  row={row.original} idx={idx} />,
+                    children: <EditarReferencia onHandleEditar={onHandleEditar} setOpen={setOpen}  row={row.data} idx={idx} />,
                 })
                 break;           
             default: 
@@ -368,25 +373,6 @@ function Cobranza(){
             </Row>
         </>
     );
-
-    const changeColegio = (idColegio) => {
-        setColegioSelected(idColegio)
-        const currentRefs = [...allItems.filter(it=>it.colegio===idColegio)[0].referencias];
-        if(currentRefs.some(cf=>cf.anual && cf.estatus==='pagada')){
-            setIsAnualidadPagada(true)
-        }
-        setItems(currentRefs.filter(crf => !crf.repetir).map(rf => (
-            {
-                mes: rf.mes,
-                year: rf.year,
-                anual: rf.anual,
-                referenciaBancaria: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({referenciaBancaria : it.referenciaBancaria})),
-                monto: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({monto : it.monto})),
-                fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
-            }
-        )))
-    }
-
     const cardHandleList = (
         (loading || buildArray) ?
         <Row>
@@ -395,13 +381,155 @@ function Cobranza(){
             </Col>
         </Row> :
         <Row>
-            <Col xl="12">                                    
-                <SimpleTable
-                    columns={columns}
-                    data={items} 
-                />
-            </Col>            
-        </Row>
+            <Col>
+                <div className="table-responsive">
+                    <div className="react-bootstrap-table table-responsive">
+                        <table className="table table align-middle table-nowrap table-hover table-bg-info-light bg-white">
+                            <thead>
+                                <tr>
+                                    <th width={17}>Mes</th>
+                                    <th width={19}>Concepto de pago</th>
+                                    <th width={14}>Monto</th>
+                                    <th width={10}>Estatus</th>
+                                    <th width={10}>Fecha de pago</th>
+                                    <th width={10}>Fecha de actualización</th>
+                                    <th width={20}></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {
+                                items.length === 0 ? <tr><td colSpan={5}>No hay información disponible</td></tr> :
+                                items.map((item, idx) => (
+                                    <tr key={`refs-${idx}`}>
+                                        <td><strong>{item.mes} {item.mes.toLowerCase() !== 'anualidad' && `${item.year}`}</strong></td>
+                                        <td>
+                                            <ul className="list-unstyled">
+                                            {item.data.referenciaBancaria.map((rB, idx) => (
+                                                <li key={`referenciaBancaria-${idx}`}>{rB.referenciaBancaria}</li>
+                                            ))}
+                                            </ul> 
+                                        </td>
+                                        <td>
+                                            <ul className="list-unstyled">
+                                            {item.data.monto.map((mt, idx) => (
+                                                <li key={`monto-${idx}`}>{numberFormat(mt.monto)}</li>
+                                            ))}
+                                            </ul> 
+                                        </td>
+                                        <td>
+                                            <div>
+                                                {item.data.estatus.map((mt, idx) => (
+                                                    <span 
+                                                        key={`monto-${idx}`}
+                                                        className={`d-block my-1 badge rounded-pill fs-6 fw-normal 
+                                                            ${(item.data.estatus.some(s=>s.estatus === 'pagada') && mt.estatus === 'activa') ? 
+                                                            'bg-secondary' :
+                                                            (isAnualidadPagada && !item.data.anual) ?
+                                                            'bg-secondary' :   
+                                                            (item.data.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada' && !ai.anual)) ?
+                                                            'bg-secondary' :
+                                                            mt.estatus === 'activa' ?
+                                                            'bg-danger' : 
+                                                            'bg-success'}`
+                                                        }
+                                                        style={{width: 'fit-content'}}
+                                                    >
+                                                        {
+                                                            (
+                                                                (item.data.estatus.some(s=>s.estatus === 'pagada') && mt.estatus === 'activa') ||
+                                                                (isAnualidadPagada && !item.data.anual) ||
+                                                                (item.data.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada' && !ai.anual))
+                                                            ) ? 
+                                                            'N/A':
+                                                            mt.estatus
+                                                        }
+                                                    </span>
+                                                ))}
+                                                </div> 
+                                        </td>
+                                        <td>
+                                            <ul className="list-unstyled">
+                                                {item.data.fechaPago.map((rB, idx) => (
+                                                    <li key={`fechaPago-${idx}`}>{moment(rB.fechaPago, "YYYY-MM-DD").format("DD/MM/YYYY")}</li>
+                                                ))}
+                                            </ul> 
+                                        </td>
+                                        <td>
+                                            <ul className="list-unstyled">
+                                                {item.data.fechaCreacion.map((rB, idx) => (
+                                                    <li key={`fechaCreacion-${idx}`}>{moment(rB.fechaCreacion, "YYYY-MM-DD").format("DD/MM/YYYY")}</li>
+                                                ))}
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                {item.data.estatus.map((mt, idx) => (
+                                                    <div className="d-flex" key={`btn-pagar-${idx}`}>
+                                                        <Button 
+                                                            color={`${(item.data.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !item.data.isActive[idx].isActive) ? 
+                                                                    'secondary' : 
+                                                                    (item.data.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
+                                                                    'secondary' :
+                                                                    (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada')) ?
+                                                                    'secondary' :
+                                                                    'success'}`
+                                                                } 
+                                                            size="sm" 
+                                                            className="my-1 me-1"
+                                                            disabled={item.data.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !item.data.isActive[idx].isActive ||
+                                                                    (item.data.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
+                                                                    (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))
+                                                                    }
+                                                            onClick={e=>
+                                                                (item.data.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !item.data.isActive[idx].isActive ||
+                                                                (item.data.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
+                                                                (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))) ? {} :
+                                                                handleOperation("pagar", item, idx)}
+                                                        >
+                                                            Pagar
+                                                        </Button>
+                                                        {/* <Button
+                                                            color="secondary"
+                                                            disabled
+                                                            size="sm"
+                                                            className="my-1 me-1"
+                                                        >Facturar
+                                                        </Button>
+                                                        <Button
+                                                            color="secondary"
+                                                            disabled
+                                                            size="sm"
+                                                            className="my-1 me-1"
+                                                        >Enviar
+                                                        </Button>
+                                                        <Button
+                                                            color={`${!item.data.isActive[idx].isActive ? 'secondary' : 'danger'}`}
+                                                            size="sm"
+                                                            className="my-1 me-1"
+                                                            disabled={mt.estatus === 'activa' || !row.original.isActive[idx].isActive}
+                                                            onClick={e=>mt.estatus === 'activa' ? {} : handleOperation("cancelar", row, idx)}
+                                                        >Cancelar
+                                                        </Button> */}
+                                                        <Button
+                                                            color="primary"
+                                                            size="sm"
+                                                            className="my-1 me-1"
+                                                            onClick={e=>handleOperation("editar", item, idx)}
+                                                        >Editar
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                                </div>    
+                                        </td>
+                                    </tr>
+                                ))
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </Col>
+        </Row> 
     )
     return (
         <>
