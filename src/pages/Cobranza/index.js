@@ -69,7 +69,7 @@ function Cobranza(){
                         fechaCreacion: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaCreacion : it.fechaCreacion})),
                     }
                 )))
-    
+                
                 const data = [];
                 allItems[0].referencias.forEach(element => {
                     const obj = {

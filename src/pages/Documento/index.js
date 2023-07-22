@@ -17,6 +17,7 @@ import { getColegiosList } from "../../helpers/colegios";
 import EditReferencia from "../../components/Documento/EditReferencia";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import Reporte from "../../components/PDF/Reporte";
+import groupByMonth from "../../utils/groupByMonth";
 
 function Documento(){  
     const [loading, setLoading] = useState(false)
@@ -133,7 +134,9 @@ function Documento(){
                 fechaLimite: currentRefs.filter(crf=>crf.mes === rf.mes).map(it=>({fechaLimite : it.fechaLimite})),
               }
             ))
-            setItems(refs)
+            const apruparRefs = groupByMonth(refs)  
+            console.log(apruparRefs)          
+            setItems(apruparRefs)
             const currentAlumnos = [...allItems[0].alumnos]
             setPdfData(prev=>({
               ...prev,
@@ -261,11 +264,50 @@ function Documento(){
                         <Button color="secondary" outline type="button"><i className="bx bxs-file-pdf" /> Descargar</Button>
                       }
                     </PDFDownloadLink>                    
-                  </div>   }                           
-                  <SimpleTable
+                  </div>   }  
+                  <Row>
+            <Col>
+                <div className="table-responsive">
+                    <div className="react-bootstrap-table table-responsive">
+                        <table className="table table align-middle table-nowrap table-hover table-bg-info-light bg-white">
+                            <thead>
+                                <tr>
+                                  <th>Mes</th>
+                                  <th>Concepto de pago</th>
+                                  <th>Monto</th>
+                                  <th>Fecha límite de pago</th>
+                                  <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {
+                                  items.length === 0 ? <tr><td colSpan={5}>No hay información disponible</td></tr> :
+                                  items.map((item, idx) => (
+                                    <tr key={`refs-${idx}`}>
+                                      <td><strong>{item.mes} {item.mes.toLowerCase() !== 'anualidad' && `${item.year}`}</strong></td>
+                                      <td>
+                                        <ul className="list-unstyled">
+                                          {item.data.referenciaBancaria.map((rB, idx) => (
+                                            <li key={`referenciaBancaria-${idx}`}>{rB.referenciaBancaria}</li>
+                                          ))}
+                                        </ul> 
+                                      </td>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                    </tr>
+                                  ))
+                                }
+                            </tbody>
+                            </table>
+                    </div>
+                </div>
+            </Col>
+        </Row>                         
+                  {/* <SimpleTable
                       columns={columns}
                       data={items} 
-                  />
+                  /> */}
               </Col>            
           </Row>
         }
