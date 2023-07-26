@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useState } from "react";
 import { withRouter } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Col, Container, Row } from "reactstrap";
+import { Button, Col, Container, InputGroup, Row } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import CardBasic from "../../components/Common/CardBasic";
 import SimpleLoad from "../../components/Loader/SimpleLoad";
@@ -12,6 +12,7 @@ import SimpleTable from "../../components/Tables/SimpleTable";
 import { ERROR_SERVER } from "../../constants/messages";
 import { getRazonSocialQuery } from "../../helpers/razonsocial";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
+import Paginate from "../../components/Tables/Paginate";
 
 function RazonSocial(){  
     const [loading, setLoading] = useState(false)
@@ -21,8 +22,9 @@ function RazonSocial(){
     const [totalRegistros, setTotalRegistros]   =useState(10)
     const [reload, setReload] = useState(false);
     const [openAccordion, setOpenAccordion] = useState(false)
+    const [searchBy, setSearchBy] = useState('')
     const [query, setQuery] = useState({
-      PageNumber: 0,
+      PageNumber: 1,
       PageSize: totalRegistros
     })
 
@@ -54,6 +56,7 @@ function RazonSocial(){
     }, [reload])
 
     const editAction = (row) => {
+        console.log(row)
         setItem(row.original)
         setOpenAccordion(true)
         window.scrollTo({top: 0, left: 0, behavior: 'smooth'})
@@ -105,6 +108,34 @@ function RazonSocial(){
             </Row>
         </>
     );
+    const handlePageClick = page => {
+        setQuery(prev=>({
+            ...prev,
+            PageNumber: page
+        }))
+    }
+
+    const handleChangeLimit = limit => {
+        setQuery(prev=>({
+            ...prev,
+            PageNumber: 0,
+            PageSize: limit
+        }))
+    }
+
+    const buscarRazonSocial = () => {
+        let queryCopy = {
+          PageNumber: 0,
+          PageSize: 10
+        }
+        if(searchBy){
+          queryCopy = {
+            ...queryCopy,
+            parameter: searchBy
+          }
+        }
+        setQuery(queryCopy);    
+    }
 
     const cardHandleList = (
         <>
@@ -116,12 +147,45 @@ function RazonSocial(){
                 </Col>
             </Row> :
             <Row>
+                <div className="d-flex justify-content-end">
+                    <div className="mb-1">
+                    <InputGroup>
+                        <input
+                        type="text"  
+                        id="search"
+                        className="form-control" 
+                        placeholder="Buscar..."
+                        value={searchBy}
+                        onChange={e=>setSearchBy(e.target.value)}
+                        />
+                        <div
+                        className="input-group-append"
+                        onClick={buscarRazonSocial}
+                        >
+                        <Button type="button" color="primary">
+                            <i className="bx bx-search-alt-2" />
+                        </Button>
+                        </div>
+                    </InputGroup>
+                    </div>
+                </div>
                 <Col xl="12">                                    
                     <SimpleTable
                         columns={columns}
                         data={items} 
                     />
-                </Col>            
+                </Col> 
+                {
+                items.length > 0 &&
+                    <Paginate
+                        page={query.PageNumber}
+                        totalPaginas={totalPaginas}
+                        totalRegistros={totalRegistros}
+                        handlePageClick={handlePageClick}
+                        limit={query.PageSize}
+                        handleChangeLimit={handleChangeLimit}
+                    />
+                }            
             </Row>
         }
         </>        

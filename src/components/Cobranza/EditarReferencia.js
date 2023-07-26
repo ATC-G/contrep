@@ -29,7 +29,7 @@ const EditarReferencia = ({onHandleEditar, setOpen, row, idx}) => {
             
         }),
         onSubmit: async (values) => {
-            console.log(values)
+            //console.log(values)
             //validaciones antes de enviarlo
             setShowLoad(true)
             //update
@@ -51,7 +51,7 @@ const EditarReferencia = ({onHandleEditar, setOpen, row, idx}) => {
         }
     })
 
-    console.log(formik.values)
+    //console.log(formik.values)
     return (
         <>                
             <Form

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Button, Col, Form, Input, Label, Row } from "reactstrap";
 import * as Yup from "yup";
-import { ERROR_SERVER, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION, UPDATE_SUCCESS } from "../../constants/messages";
+import { ERROR_SERVER, FIELD_EMAIL, FIELD_REQUIRED, SAVE_SUCCESS, SELECT_OPTION, UPDATE_SUCCESS } from "../../constants/messages";
 import { saveRazonSocial, updateRazonSocial } from "../../helpers/razonsocial";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import SubmitingForm from "../Loader/SubmitingForm";
@@ -11,7 +11,7 @@ import Select from 'react-select';
 import { getColegiosList } from "../../helpers/colegios";
 
 export default function FormRazonSocial({item, setItem, setReloadList}){
-    console.log(item)
+    //console.log(item)
     const [isSubmit, setIsSubmit] = useState(false);
     const [colegioOpt, setColegioOpt] = useState([]);
 
@@ -42,6 +42,8 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             apellido:item?.apellido ?? '',
             padre:  item?.padre ?? '',
             colegioId: item?.colegioId ?? '',
+            usoCFDI: item?.usoCFDI ?? '',
+            email: item?.email ?? '',
         },
         validationSchema: Yup.object({
             nombre: Yup.string().required(FIELD_REQUIRED),
@@ -51,8 +53,10 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
             tipo: Yup.string().required(FIELD_REQUIRED),
             familia: Yup.string().required(FIELD_REQUIRED),
             apellido: Yup.string().required(FIELD_REQUIRED),
-            padre: Yup.string().required(FIELD_REQUIRED),
+            //padre: Yup.string().required(FIELD_REQUIRED),
             colegioId: Yup.string().required(FIELD_REQUIRED),
+            usoCFDI: Yup.string().required(FIELD_REQUIRED),
+            email: Yup.string().email(FIELD_EMAIL).required(FIELD_REQUIRED),     
         }),
         onSubmit: async (values) => {
             setIsSubmit(true)
@@ -215,6 +219,34 @@ export default function FormRazonSocial({item, setItem, setReloadList}){
                             {
                             formik.errors.tipo &&
                                 <div className="invalid-tooltip d-block">{formik.errors.tipo}</div>
+                            }
+                        </Col>
+                        <Col xs="12" md="6">
+                            <Label htmlFor="usoCFDI" className="mb-0">Uso CFDI</Label>
+                            <Input
+                                id="usoCFDI"
+                                name="usoCFDI"
+                                className={`form-control ${formik.errors.usoCFDI ? 'is-invalid' : ''}`}
+                                onChange={formik.handleChange}
+                                value={formik.values.usoCFDI}  
+                            />
+                            {
+                                formik.errors.usoCFDI &&
+                                <div className="invalid-tooltip">{formik.errors.usoCFDI}</div>
+                            }
+                        </Col>
+                        <Col xs="12" md="6">
+                            <Label htmlFor="email" className="mb-0">Correo electrónico de facturación</Label>
+                            <Input
+                                id="email"
+                                name="email"
+                                className={`form-control ${formik.errors.email ? 'is-invalid' : ''}`}
+                                onChange={formik.handleChange}
+                                value={formik.values.email}  
+                            />
+                            {
+                                formik.errors.email &&
+                                <div className="invalid-tooltip">{formik.errors.email}</div>
                             }
                         </Col>
                     </Row>

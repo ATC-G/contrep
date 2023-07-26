@@ -8,12 +8,12 @@ import { saveAlumnos, updateAlumnos } from "../../helpers/alumnos";
 import { toast } from "react-toastify";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import SubmitingForm from "../Loader/SubmitingForm";
-import { FIELD_EMAIL } from "../../constants/messages";
 
 export default function FormAlumnos({item, setItem, setReloadList, colegioOpt, razonSocialOpt}){
     const [isSubmit, setIsSubmit] = useState(false);
     const [colegioOBj, setColegioObj] = useState(null)
     const [razonSocialOBj, setRazonSocialObj] = useState(null)
+    console.log(item)
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -38,7 +38,7 @@ export default function FormAlumnos({item, setItem, setReloadList, colegioOpt, r
             colegio: Yup.string().required(FIELD_REQUIRED),
             mensualidad: Yup.number().integer(FIELD_INTEGER).typeError(FIELD_NUMERIC).required(FIELD_REQUIRED),            
             razonSocial: Yup.string().required(FIELD_REQUIRED),  
-            email: Yup.string().email(FIELD_EMAIL).required(FIELD_REQUIRED),            
+            //email: Yup.string().email(FIELD_EMAIL).required(FIELD_REQUIRED),            
         }),
         onSubmit: async (values) => {
             setIsSubmit(true)

@@ -1,4 +1,4 @@
-import { Image, Text } from "@react-pdf/renderer";
+import { Image, Text, pdf } from "@react-pdf/renderer";
 import { View } from "@react-pdf/renderer";
 import { Document, Page, StyleSheet } from "@react-pdf/renderer";
 import logoSantander from '../../assets/images/santander.PNG'
@@ -6,6 +6,7 @@ import logoCotrep from '../../assets/images/cotrepLogo.PNG'
 import moment from "moment";
 
 function Reporte({pdfData}){
+    console.log(pdfData)
     const styles = StyleSheet.create({
         body: {
             paddingTop: 35,
@@ -91,8 +92,8 @@ function Reporte({pdfData}){
                     <Text style={{fontSize: 10, fontWeight: 900}}>Convenio: {pdfData.convenio}</Text>
                 </View>
                 <View style={{marginTop: 10, display: 'flex', flexDirection: 'row'}}>
-                    <Text style={{fontSize: 10, width: 150}}></Text>
-                    <Text style={{fontSize: 10}}>Chávez Estévez</Text>
+                    <Text style={{fontSize: 10, width: 150}}>{pdfData.codigoFamilia}</Text>
+                    <Text style={{fontSize: 10}}>{pdfData.familia}</Text>
                 </View>
                 {
                     pdfData.alumnos.map((al, idxA) => (

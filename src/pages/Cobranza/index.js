@@ -123,177 +123,6 @@ function Cobranza(){
                 break;
         }
     }
-    const columns =[
-            {
-                Header: 'Mes',
-                accessor: 'mes', // accessor is the "key" in the data
-                Cell: ({row}) => <strong>{`${row.values.mes !== 'N/A' ? row.values.mes : ''} ${(row.original.year > 0 && !row.original.anual) ? row.original.year : ''}`}</strong>,
-                style: {
-                    width: '18%'
-                }
-            },
-            {
-                Header: 'Concepto de pago',
-                accessor: 'referenciaBancaria',
-                Cell: ({row}) => (
-                    <ul className="list-unstyled">
-                      {row.original.referenciaBancaria.map((rB, idx) => (
-                        <li key={`referenciaBancaria-${idx}`}>{rB.referenciaBancaria}</li>
-                      ))}
-                    </ul>            
-                ),
-                style: {
-                    width: '19%'
-                }
-            },
-            {
-                Header: 'Monto',
-                accessor: 'monto',
-                Cell: ({row}) => (
-                    <ul className="list-unstyled">
-                      {row.original.monto.map((mt, idx) => (
-                        <li key={`monto-${idx}`}>{numberFormat(mt.monto)}</li>
-                      ))}
-                    </ul>            
-                ),
-                style: {
-                    width: '15%'
-                }
-            },
-            {
-                Header: "Estatus",
-                accessor: "estatus",
-                Cell: ({row}) => (
-                    <div>
-                      {row.original.estatus.map((mt, idx) => (
-                        <span 
-                            key={`monto-${idx}`}
-                            className={`d-block my-1 badge rounded-pill fs-6 fw-normal 
-                                ${(row.original.estatus.some(s=>s.estatus === 'pagada') && mt.estatus === 'activa') ? 
-                                'bg-secondary' :
-                                (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
-                                'bg-secondary' :   
-                                (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada')) ?
-                                'bg-secondary' :   
-                                mt.estatus === 'activa' ?
-                                'bg-danger' : 
-                                'bg-success'}`
-                            }
-                            style={{width: 'fit-content'}}
-                        >
-                            {
-                                (
-                                    (row.original.estatus.some(s=>s.estatus === 'pagada') && mt.estatus === 'activa') ||
-                                    (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
-                                    (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))
-                                ) ? 
-                                'N/A':
-                                mt.estatus
-                            }
-                        </span>
-                      ))}
-                    </div>            
-                ),                
-                style: {
-                    width: '10%'
-                }
-            },
-            {
-                Header: 'Fecha de pago',
-                accessor: 'fechaPago',
-                Cell: ({row}) => (
-                    <ul className="list-unstyled">
-                      {row.original.fechaPago.map((rB, idx) => (
-                        <li key={`fechaPago-${idx}`}>{moment(rB.fechaPago, "YYYY-MM-DD").format("DD/MM/YYYY")}</li>
-                      ))}
-                    </ul>            
-                ),
-                style: {
-                    width: '10%'
-                }
-            },
-            {
-                Header: 'Fecha de actualización',
-                accessor: 'fechaCreacion',
-                Cell: ({row}) => (
-                    <ul className="list-unstyled">
-                      {row.original.fechaCreacion.map((rB, idx) => (
-                        <li key={`fechaCreacion-${idx}`}>{moment(rB.fechaCreacion, "YYYY-MM-DD").format("DD/MM/YYYY")}</li>
-                      ))}
-                    </ul>            
-                ),
-                style: {
-                    width: '10%'
-                }
-            },
-            {
-                id: 'acciones',
-                Header: "",
-                Cell: ({row}) => (
-                    <div>
-                      {row.original.estatus.map((mt, idx) => (
-                        <div className="d-flex" key={`btn-pagar-${idx}`}>
-                            <Button 
-                                color={`${(row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !row.original.isActive[idx].isActive) ? 
-                                        'secondary' : 
-                                        (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
-                                        'secondary' :
-                                        (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada')) ?
-                                        'secondary' :
-                                        'success'}`
-                                    } 
-                                size="sm" 
-                                className="my-1 me-1"
-                                disabled={row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !row.original.isActive[idx].isActive ||
-                                        (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
-                                        (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))
-                                        }
-                                onClick={e=>
-                                     (row.original.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !row.original.isActive[idx].isActive ||
-                                     (row.original.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
-                                     (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))) ? {} :
-                                     handleOperation("pagar", row, idx)}
-                            >
-                                Pagar
-                            </Button>
-                            {/* <Button
-                                color="secondary"
-                                disabled
-                                size="sm"
-                                className="my-1 me-1"
-                            >Facturar
-                            </Button>
-                            <Button
-                                color="secondary"
-                                disabled
-                                size="sm"
-                                className="my-1 me-1"
-                            >Enviar
-                            </Button>
-                            <Button
-                                color={`${!row.original.isActive[idx].isActive ? 'secondary' : 'danger'}`}
-                                size="sm"
-                                className="my-1 me-1"
-                                disabled={mt.estatus === 'activa' || !row.original.isActive[idx].isActive}
-                                onClick={e=>mt.estatus === 'activa' ? {} : handleOperation("cancelar", row, idx)}
-                            >Cancelar
-                            </Button> */}
-                            <Button
-                                color="primary"
-                                size="sm"
-                                className="my-1 me-1"
-                                onClick={e=>handleOperation("editar", row, idx)}
-                            >Editar
-                            </Button>
-                        </div>
-                      ))}
-                    </div>            
-                ),
-                style: {
-                    width: '20%'
-                }         
-            }        
-    ];
 
     const onHandlePagar = async (row, idx) => {
         setShowLoad(true)
@@ -302,7 +131,9 @@ function Cobranza(){
             monto: row.monto[idx].monto,
             anual: row.anual,
             fechaLimite: row.fechaLimite[idx].fechaLimite,
-            estatus: "pagada"
+            estatus: "pagada",
+            fechaPago: row.fechaPago[idx].fechaPago,
+            isActive: row.isActive[idx].isActive
           }
           try {
             let response = await updateReferencia(data)
@@ -466,7 +297,7 @@ function Cobranza(){
                                                 {item.data.estatus.map((mt, idx) => (
                                                     <div className="d-flex" key={`btn-pagar-${idx}`}>
                                                         <Button 
-                                                            color={`${(item.data.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !item.data.isActive[idx].isActive) ? 
+                                                            color={`${(item.data.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !item.data.isActive[idx].isActive || !item.data.fechaPago[idx].fechaPago) ? 
                                                                     'secondary' : 
                                                                     (item.data.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ?
                                                                     'secondary' :
@@ -476,12 +307,12 @@ function Cobranza(){
                                                                 } 
                                                             size="sm" 
                                                             className="my-1 me-1"
-                                                            disabled={item.data.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !item.data.isActive[idx].isActive ||
+                                                            disabled={item.data.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !item.data.isActive[idx].isActive || !item.data.fechaPago[idx].fechaPago ||
                                                                     (item.data.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
                                                                     (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))
                                                                     }
                                                             onClick={e=>
-                                                                (item.data.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !item.data.isActive[idx].isActive ||
+                                                                (item.data.estatus.some(s=>s.estatus === 'pagada') || isAnualidadPagada || !item.data.isActive[idx].isActive || !item.data.fechaPago[idx].fechaPago ||
                                                                 (item.data.anual && allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai => ai.estatus === 'pagada')) ||
                                                                 (allItems.filter(it=>it.colegio===colegioSelected)[0].referencias.some(ai =>ai.anual && ai.estatus === 'pagada'))) ? {} :
                                                                 handleOperation("pagar", item, idx)}

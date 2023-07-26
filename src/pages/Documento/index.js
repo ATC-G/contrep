@@ -37,7 +37,8 @@ function Documento(){
       convenio: '',
       referencias: [],
       ciclo: '',
-      colegio: ''
+      colegio: '',
+      codigoFamilia: ''
     })
 
     const handleEditRef = (row) => {
@@ -46,7 +47,7 @@ function Documento(){
       setReferencia(currentRef)
       setOpenEdit(true)
     }
-
+    console.log(pdfData)
     const fetchColegios = async () => {
       try {
           const response = await getColegiosList();

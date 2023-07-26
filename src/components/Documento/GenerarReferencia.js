@@ -102,7 +102,8 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
             formik.setFieldValue('familia', value.value)
             setPdfData(prev=>({
                 ...prev,
-                familia: value.apellido
+                familia: value.apellido,
+                codigoFamilia: value.codigoFamilia
             }))
         }else{
             formik.setFieldValue('familia', '')
@@ -142,7 +143,8 @@ export default function GenerarReferencia({setItems, setSearchF, buscar, setPdfD
                 label: `${rz.familia} - ${rz.apellido}`, 
                 value: rz.id, 
                 codigo: rz.rfc, 
-                apellido: rz.apellido
+                apellido: rz.apellido,
+                codigoFamilia: rz.familia,
             })))
             setPdfData(prev=>({
                 ...prev,

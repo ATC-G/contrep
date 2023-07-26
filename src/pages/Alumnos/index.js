@@ -28,7 +28,7 @@ function Alumnos(){
     const [razonSocialOpt, setRazonSocialOpt] = useState([])
     const [firstTime, setFirstTime] = useState(true)
     const [query, setQuery] = useState({
-      PageNumber: 0,
+      PageNumber: 1,
       PageSize: totalRegistros
     })
 
@@ -244,7 +244,7 @@ function Alumnos(){
                     limit={query.PageSize}
                     handleChangeLimit={handleChangeLimit}
                 />
-            }           
+              }           
           </Row>
         }
       </>

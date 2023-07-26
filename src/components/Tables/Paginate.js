@@ -54,9 +54,9 @@ function Paginate({page, totalPaginas, handlePageClick, totalRegistros, limit, h
               </PaginationItem>
               {
               getPageIndexOptions(5, totalPaginas, page).map((item, i) => (
-                  <PaginationItem active={item === page} key={i}>
+                  <PaginationItem active={item+1 === page} key={i}>
                       <PaginationLink
-                      onClick={() => handlePageClick(item)}
+                      onClick={() => handlePageClick(item+1)}
                       href="#"
                       >
                       {item+1}
