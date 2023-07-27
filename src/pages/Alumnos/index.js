@@ -29,11 +29,12 @@ function Alumnos(){
     const [firstTime, setFirstTime] = useState(true)
     const [query, setQuery] = useState({
       PageNumber: 1,
-      PageSize: totalRegistros
+      PageSize: totalRegistros,
     })
 
   const fetchAlumnosListPaginadoApi = async () => {
     setLoading(true)
+    console.log(query)
     let q = Object.keys(query).map(key=>`${key}=${query[key]}`).join("&")
     try {
         const response = await getAlumnosList(`?${q}`);
@@ -173,11 +174,9 @@ function Alumnos(){
       PageNumber: 0,
       PageSize: 10
     }
-    if(searchBy){
-      queryCopy = {
-        ...queryCopy,
-        parameter: searchBy
-      }
+    queryCopy = {
+      ...queryCopy,
+      parameter: searchBy
     }
     setQuery(queryCopy);    
   }

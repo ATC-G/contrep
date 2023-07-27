@@ -25,7 +25,8 @@ function RazonSocial(){
     const [searchBy, setSearchBy] = useState('')
     const [query, setQuery] = useState({
       PageNumber: 1,
-      PageSize: totalRegistros
+      PageSize: totalRegistros,
+      parameter: ''
     })
 
     const fetchListPaginadoApi = async () => {
@@ -128,12 +129,10 @@ function RazonSocial(){
           PageNumber: 0,
           PageSize: 10
         }
-        if(searchBy){
-          queryCopy = {
+        queryCopy = {
             ...queryCopy,
             parameter: searchBy
           }
-        }
         setQuery(queryCopy);    
     }
 
