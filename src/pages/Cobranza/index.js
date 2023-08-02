@@ -281,7 +281,7 @@ function Cobranza(){
                                         <td>
                                             <ul className="list-unstyled">
                                                 {item.data.fechaPago.map((rB, idx) => (
-                                                    <li key={`fechaPago-${idx}`}>{moment(rB.fechaPago, "YYYY-MM-DD").format("DD/MM/YYYY")}</li>
+                                                    <li key={`fechaPago-${idx}`}>{rB.fechaPago ? moment(rB.fechaPago, "YYYY-MM-DD").format("DD/MM/YYYY") : 'N/A'}</li>
                                                 ))}
                                             </ul> 
                                         </td>

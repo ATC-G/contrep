@@ -47,7 +47,7 @@ function Documento(){
       setReferencia(currentRef)
       setOpenEdit(true)
     }
-    console.log(pdfData)
+    //console.log(pdfData)
     const fetchColegios = async () => {
       try {
           const response = await getColegiosList();
