@@ -1,4 +1,4 @@
-import { Image, Text, pdf } from "@react-pdf/renderer";
+import { Image, Text } from "@react-pdf/renderer";
 import { View } from "@react-pdf/renderer";
 import { Document, Page, StyleSheet } from "@react-pdf/renderer";
 import logoSantander from "../../assets/images/santander.PNG";
@@ -6,12 +6,21 @@ import logoCotrep from "../../assets/images/cotrepLogo.PNG";
 import moment from "moment";
 import { Html } from "react-pdf-html";
 
-// const html = `<p>hola <strong>hw</strong></p>
-// <p>hola1</p>
-// `;
-
 function Reporte({ pdfData }) {
   console.log(pdfData);
+  const html = `<html>
+  <body>
+    <style>
+      p {
+        margin-bottom: 0px!important;
+        margin: 0px;
+        font-size: 8px;
+      }
+    </style>
+      ${pdfData?.extraInfo ?? ""}    
+  </body>
+</html>
+`;
   const styles = StyleSheet.create({
     body: {
       paddingTop: 35,
@@ -31,18 +40,21 @@ function Reporte({ pdfData }) {
       flexDirection: "row",
       justifyContent: "space-between",
     },
+    font7: {
+      fontSize: "7px!important",
+    },
   });
   const stylesTable = StyleSheet.create({
     table: {
       width: "100%",
-      fontSize: 9.5,
+      fontSize: 7,
     },
     row: {
       display: "flex",
       flexDirection: "row",
       borderTop: "1px solid #777",
-      paddingTop: 8,
-      paddingBottom: 8,
+      paddingTop: 4,
+      paddingBottom: 4,
     },
     header: {
       borderTop: "none",
@@ -71,7 +83,7 @@ function Reporte({ pdfData }) {
       currency: "USD",
     });
     if (number) return formatter.format(number);
-    return "";
+    return "$0.00";
   };
   const capitalizeFirstLetterOfEachWord = (sentence) => {
     var words = sentence.toLowerCase().split(" ");
@@ -124,10 +136,6 @@ function Reporte({ pdfData }) {
             <Text style={{ fontSize: 10 }}>{formatNumber(al.mensualidad)}</Text>
           </View>
         ))}
-        {/* <View style={{ marginTop: 10, display: "block" }}>
-          <Html>{html}</Html>
-        </View> */}
-
         <View style={[stylesTable.table, { marginTop: 10 }]}>
           <View style={[stylesTable.row, stylesTable.bold, stylesTable.header]}>
             <Text style={stylesTable.row1}>Mes</Text>
@@ -165,6 +173,9 @@ function Reporte({ pdfData }) {
               </View>
             </View>
           ))}
+        </View>
+        <View style={{ marginTop: 15, display: "block" }}>
+          <Html>{html}</Html>
         </View>
       </Page>
     </Document>

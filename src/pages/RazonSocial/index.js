@@ -109,7 +109,7 @@ function RazonSocial() {
         },
       },
     ],
-    []
+    [colegioOpt]
   );
 
   const cardChildren = (
