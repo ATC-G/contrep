@@ -7,7 +7,6 @@ import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import CardBasic from "../../components/Common/CardBasic";
 import GenerarReferencia from "../../components/Documento/GenerarReferencia";
 import SimpleLoad from "../../components/Loader/SimpleLoad";
-import SimpleTable from "../../components/Tables/SimpleTable";
 import { ERROR_SERVER } from "../../constants/messages";
 import extractMeaningfulMessage from "../../utils/extractMeaningfulMessage";
 import { getReferenciasByFamily } from "../../helpers/referencia";
