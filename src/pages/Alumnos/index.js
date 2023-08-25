@@ -58,14 +58,14 @@ function Alumnos() {
 
   const fecthDataApis = async () => {
     const queryObj = {
-      razonSocial: `?PageNumber=0&PageSize=1000`,
+      razonSocial: `?PageNumber=0&PageSize=2000`,
       alumnos: `?${Object.keys(query)
         .map((key) => `${key}=${query[key]}`)
         .join("&")}`,
     };
     try {
       const response = await getMultipleListAlumnos(queryObj);
-      //console.log(response)
+      //console.log(response);
       setRazonSocialOpt(
         response[0].data.map((rz) => ({
           label: `${rz.familia} - ${rz.apellido}`,
@@ -112,7 +112,11 @@ function Alumnos() {
   }, [reload]);
 
   const editAction = (row) => {
-    //console.log(row)
+    console.log(row);
+    console.log(razonSocialOpt);
+    console.log(
+      razonSocialOpt.filter((it) => it.value === row.original.razonSocial)
+    );
     setItem(row.original);
     setOpenAccordion(true);
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
