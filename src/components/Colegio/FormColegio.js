@@ -35,6 +35,10 @@ export default function FormColegio({ item, setItem, setReloadList }) {
         estado: item?.direccion?.estado ?? "",
         pais: item?.direccion?.pais ?? "",
       },
+      costeUnidad: item?.costeUnidad ?? "",
+      costeOperador: item?.costeOperador ?? "",
+      costeCliente: item?.costeCliente ?? "",
+      costeZona: item?.costeZona ?? "",
     },
     validationSchema: Yup.object({
       nombre: Yup.string().required(FIELD_REQUIRED),
@@ -254,6 +258,76 @@ export default function FormColegio({ item, setItem, setReloadList }) {
             onChange={formik.handleChange}
             value={formik.values.direccion.pais}
           />
+        </Col>
+      </Row>
+      <Row>
+        <Col xs="12" md="3">
+          <Label htmlFor="costeUnidad" className="mb-0">
+            Precio coste unidad
+          </Label>
+          <Input
+            id="costeUnidad"
+            name="costeUnidad"
+            className={`form-control ${
+              formik.errors.costeUnidad ? "is-invalid" : ""
+            }`}
+            onChange={formik.handleChange}
+            value={formik.values.costeUnidad}
+          />
+          {formik.errors.costeUnidad && (
+            <div className="invalid-tooltip">{formik.errors.costeUnidad}</div>
+          )}
+        </Col>
+        <Col xs="12" md="3">
+          <Label htmlFor="costeOperador" className="mb-0">
+            Precio coste operador
+          </Label>
+          <Input
+            id="costeOperador"
+            name="costeOperador"
+            className={`form-control ${
+              formik.errors.costeOperador ? "is-invalid" : ""
+            }`}
+            onChange={formik.handleChange}
+            value={formik.values.costeOperador}
+          />
+          {formik.errors.costeOperador && (
+            <div className="invalid-tooltip">{formik.errors.costeOperador}</div>
+          )}
+        </Col>
+        <Col xs="12" md="3">
+          <Label htmlFor="costeCliente" className="mb-0">
+            Precio coste cliente
+          </Label>
+          <Input
+            id="costeCliente"
+            name="costeCliente"
+            className={`form-control ${
+              formik.errors.costeCliente ? "is-invalid" : ""
+            }`}
+            onChange={formik.handleChange}
+            value={formik.values.costeCliente}
+          />
+          {formik.errors.costeCliente && (
+            <div className="invalid-tooltip">{formik.errors.costeCliente}</div>
+          )}
+        </Col>
+        <Col xs="12" md="3">
+          <Label htmlFor="costeZona" className="mb-0">
+            Precio coste zona
+          </Label>
+          <Input
+            id="costeZona"
+            name="costeZona"
+            className={`form-control ${
+              formik.errors.costeZona ? "is-invalid" : ""
+            }`}
+            onChange={formik.handleChange}
+            value={formik.values.costeZona}
+          />
+          {formik.errors.costeZona && (
+            <div className="invalid-tooltip">{formik.errors.costeZona}</div>
+          )}
         </Col>
       </Row>
       <Row className="mt-2">
