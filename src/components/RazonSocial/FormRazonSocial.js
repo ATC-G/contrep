@@ -358,6 +358,21 @@ export default function FormRazonSocial({ item, setItem, setReloadList }) {
                 <div className="invalid-tooltip">{formik.errors.padre}</div>
               )}
             </Col>
+            {item?.id && (
+              <Col xs="12" md="6">
+                <Label htmlFor="codSap" className="mb-0">
+                  Código SAP
+                </Label>
+                <div
+                  className="form-control"
+                  style={{ backgroundColor: "#eee" }}
+                >
+                  {formik.values?.cardCode === ""
+                    ? "No Disponible"
+                    : formik.values.cardCode}
+                </div>
+              </Col>
+            )}
           </Row>
         </Col>
       </Row>
